@@ -61,7 +61,7 @@ The tweening animation class. It exposes the following methods and properties, i
 	* *endVal* - the end value of the animated property. Stored in the `endVal` property.
 	* *postfix* - an optional postfix that should be appended to the value of the animated property (e.g., `'px'`, `'%'`). Defaults to `''`. Stored in the `postfix` property.
 	* *millisec* - an optional duration of the animation. Defaults to `1000`. Stored in the `millisec` property.
-	* *easingFunc - an optional easing function that should be used. Defaults to `animini.easing.sine.inout`. Stored in the `easingFunc` property.
+	* *easingFunc* - an optional easing function that should be used. Defaults to `animini.easing.sine.inout`. Stored in the `easingFunc` property.
 	* *onend* - an optional callback function that should be invoked when the animation ends. The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
 * `obj` property - the HTML DOM element that should be animated.
 * `prop` property - the name of the style property that should be animated.
@@ -100,7 +100,7 @@ Each easing type includes a triplet of functions:
 * `out` - the easing out function
 * `inout` - easing in till midway, and then easing out till the end
 
-So for example, the linear easing triplets `animini.easing.linear` includes the functions `animini.easing.linear.in`, `animini.easing.linear.out` and `animini.easing.linear.inout`.
+So for example, the linear easing triplet `animini.easing.linear` includes the functions `animini.easing.linear.in`, `animini.easing.linear.out` and `animini.easing.linear.inout`.
 
 The animini library includes the following easing function triplets:
 

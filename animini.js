@@ -40,18 +40,20 @@
 		},
 		'expect' : function (pos) { return Math.pow(pos, 2) * (4 * pos - 3); },
 		'bounce' : function (pos) { 
-			var x = 1 - pos, f = function (a, b) { return 1 - 7.5625 * Math.pow(x - a / 11, 2) - b; };
-			return x < 4/11 ? f(0, 0) : x < 8/11 ? f(6, .75) : x < 10/11 ? f(9, .9375) : f(10.5, .984375);
+			var x = 1 - pos, f = function (a, b) { return 1 - 121/16 * Math.pow(x - a / 11, 2) - b; };
+			return x < 4/11 ? f(0, 0) : x < 8/11 ? f(6, 3/4) : x < 10/11 ? f(9, 15/16) : f(10.5, 63/64);
 		},
 	};
-	(function () {
+	
+	function out(f) { return function (pos) { return 1 - f(1 - pos); }; }
+	function inout(f) { return function (pos) { return pos < 0.5 ? f(pos * 2) / 2 : (1 - f(2 - pos * 2) / 2); }; }
+	function setupEasingFuncs() {
 		for (var i in easing) {
 			var f = easing[i];
 			easing[i] = {'in':f, 'out':out(f), 'inout':inout(f)};
 		}
-		function out(f) { return function (pos) { return 1 - f(1 - pos); }; }
-		function inout(f) { return function (pos) { return pos < 0.5 ? f(pos * 2) / 2 : (1 - f(2 - pos * 2) / 2); }; }
-	})();
+	}
+	setupEasingFuncs();
 	
 	expose('easing', easing);
 	
@@ -66,7 +68,7 @@
 	
 		millisec : 1000,
 		
-		easingFunc : easing.sine.inout,
+		easingFunc : easing['sine']['inout'],
 		
 		start :
 		function start() {

@@ -1,0 +1,62 @@
+<html>
+	<head>
+		<title>Animini demo</title>
+		<script src="animini.js"></script>
+	</head>
+	<body>
+		<div>
+			<table>
+				<tr>
+					<script>
+					
+for (var i in animini.easing) {
+	document.write('<td style="padding-right:3ex;">');
+	var a = animini.easing[i];
+	for (var j in a) document.write('<a href="#" onclick="easingFunc=animini.easing.'+i+'.'+j+'">'+i+'.'+j+'</a><br>');
+	document.write('</td>');
+}
+
+					</script>
+				</tr>
+			</table>
+		</div>
+		<div id="myDiv" style="position:absolute; top:100px; left:75px; font-size:2rem;">
+			Animini is the smallest tweening animation javascript library!
+		</div>
+	</body>
+	<script>
+
+var easingFunc = animini.easing.expo.out;
+
+function animate() {
+	var o = document.getElementById('myDiv');
+	
+	// animini.Tween(element, stylePropName, startVal, endVal, postfix, millisec, easingFunc, onend)
+	var animateDown  = new animini.Tween(o, 'top', 100, 200, 'px', 1000, easingFunc);
+	var animateUp    = new animini.Tween(o, 'top', 200, 100, 'px', 1000, easingFunc);
+	var animateShow  = new animini.Tween(o, 'opacity', 1, 0, null, 1000, easingFunc);
+	var animateHide  = new animini.Tween(o, 'opacity', 0, 1, null, 1000, easingFunc);
+	var pause        = new animini.Pause(250);
+
+	// animini.Parallel(millisec, onend)
+	var parallelDown = new animini.Parallel(1000); // duration will override duration of child animations
+	var parallelUp   = new animini.Parallel(1000);
+	parallelDown.add(animateDown);
+	parallelDown.add(animateHide);
+	parallelUp.add(animateUp);
+	parallelUp.add(animateShow);
+
+	// animini.Serial(onend)
+	var serial = new animini.Serial(animate);
+	serial.add(parallelDown);
+	serial.add(pause);
+	serial.add(parallelUp);
+	serial.add(pause);
+	
+	serial.start();
+}
+
+animate();
+
+	</script>
+</html>

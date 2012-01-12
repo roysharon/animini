@@ -1,5 +1,6 @@
 // animini.js - Miniature Animation Javascript Library
 // by Roy Sharon <roy@roysharon.com>, 2010-09-27
+// Using or modifying this project is subject to the very permissive MIT License (http://creativecommons.org/licenses/MIT/)
 
 (function () {
 

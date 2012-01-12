@@ -1,12 +1,12 @@
 # Features
 
-* Very small - less than 4K minified.
+* Very lightweight and small - less than 4K minified.
 * Tween animations for all style properties.
 * Extensive easing functions (a.k.a. interpoletors) support: Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce.   
 Each easing function has its own versions of easing-in, easing-out, and easing-in-out.
 * Parallelizing or serializing animations.
 * Cross browser compatibility.
-* No external dependencies.
+* No external dependencies on other libraries.
 
 
 # Usage Example

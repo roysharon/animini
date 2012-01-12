@@ -140,7 +140,8 @@
 	
 	Tween.prototype.doStep = 
 	function () {
-		this.obj.style[this.prop] = this.cssVal(this.easingFunc(this.pos) * this.deltaVal + this.startVal);
+		var f = this.easingFunc.inout || this.easingFunc;
+		this.obj.style[this.prop] = this.cssVal(f(this.pos) * this.deltaVal + this.startVal);
 	};
 	
 	

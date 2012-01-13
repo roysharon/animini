@@ -21,11 +21,10 @@ Each easing function has its own versions of easing-in, easing-out, and easing-i
 	var pause       = new animini.Pause(250);
 
 	// animini.Serial(onend)
-	var serial      = new animini.Serial(animate);
+	var serial      = new animini.Serial();
 	serial.add(animateDown);
 	serial.add(pause);
 	serial.add(animateUp);
-	serial.add(pause);
 	
 	serial.start();
 

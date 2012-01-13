@@ -117,33 +117,7 @@
 		}
 	
 	};
-	
-	
-	//----- Tween class ------------------------------------------------------------
-	
-	function Tween(o, prop, startVal, endVal, postfix, millisec, easingFunc, onend) {
-		this.obj = o;
-		this.prop = prop;
-		if (postfix == undefined) postfix = /^(?:left|top|width|height)$/.test(prop) ? 'px' : '';
-		this.cssVal = /[Cc]olor/.test(prop) ? function (v) { return '#' + pre(v.toString(16), 6); } : function (v) { return v + postfix; };
-		this.startVal = startVal;
-		this.endVal = endVal;
-		this.deltaVal = this.endVal - this.startVal;
-		if (millisec) this.millisec = millisec;
-		this.onend = onend;
-		if (easingFunc) this.easingFunc = easingFunc;
-	}
-	
-	expose('Tween', Tween);
-	
-	Tween.prototype = new Animation();
-	
-	Tween.prototype.doStep = 
-	function () {
-		var f = this.easingFunc.inout || this.easingFunc;
-		this.obj.style[this.prop] = this.cssVal(f(this.pos) * this.deltaVal + this.startVal);
-	};
-	
+		
 	
 	//----- Parallel class ---------------------------------------------------------
 	
@@ -236,5 +210,94 @@
 	expose('Pause', Pause);
 	
 	Pause.prototype = new Animation();
+	
+	
+	//----- Animation Factory -----------------------------------------------------
+	
+	function Custom(o, props, millisec, easingFunc, onend) {
+		this.obj = o;
+		this.props = props;
+		if (millisec) this.millisec = millisec;
+		this.onend = onend;
+		if (easingFunc) this.easingFunc = easingFunc;
+	}
+	
+	Custom.prototype = new Animation();
+	
+	Custom.prototype.doStep = 
+	function () {
+		var f = this.easingFunc.inout || this.easingFunc;
+		var y = f(this.pos);
+		for (var p = this.props, i = p.length - 1; i >= 0; --i) {
+			for (var j = 0, s = [], a = p[i].vals, n = a.length; j < n; ++j) {
+				var c = a[j];
+				s.push(c.prefix + c.to(y * c.delta + c.start) + c.postfix);
+			}
+			this.obj.style[p[i].prop] = s.join('');
+		}
+	};
+	
+	function create(o, fromCssText, toCssText, millisec, easingFunc, onend) {
+		var from = parseCssText(fromCssText), to = parseCssText(toCssText), r = [];
+		for (var p in from) {
+			var tp = to[p];
+			if (!tp) continue;
+			var fa = from[p].split(/\s+/g), n = fa.length, ta = tp.split(/\s+/g);
+			if (ta.length != n) continue;
+			for (var i = 0, b = 0, d = []; i < n; ++i) {
+				var fi = fa[i], ti = ta[i];
+				if (fi == ti) continue;
+				if (/^#/.test(fi)) {  // possibly a color in 3 hex digits
+					fi = fi.toLowerCase().replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, '#$1$1$2$2$3$3');
+					ti = ti.toLowerCase().replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, '#$1$1$2$2$3$3');
+					if (fi == ti) continue;
+				}
+				var c = {prefix:fa.slice(b, i - 1).join(' '), postfix:''};
+				b = i + 1;
+				if (/^#/.test(fi)) {
+					c.prefix += '#';
+					function compareColorComponent(k) {
+						var fk = fi.substr(k, 2), tk = ti.substr(k, 2);
+						if (fk != tk) { 
+							c.start = parseInt(fk, 16);
+							c.delta = parseInt(tk, 16) - c.start;
+							c.to = colorComponentTo;
+							d.push(c);
+							c = {prefix:'', postfix:''};
+						} else c.prefix += fk;
+					}
+					compareColorComponent(1);
+					compareColorComponent(3);
+					compareColorComponent(5);
+					if (c.prefix) d[d.length - 1].postfix = c.prefix;
+				} else {
+					var fk = parseFloat(fi), tk = parseFloat(ti);
+					if (fk == tk) continue;
+					c.start = fk;
+					c.delta = tk - fk;
+					c.to = numTo;
+					c.postfix = fi.replace(/^-?(?:\d+(?:\.\d*)?|\.\d+)/, '');
+					d.push(c);
+				}
+			}
+			d[d.length - 1].postfix += fa.slice(b).join(' ');
+			r.push({prop:p, vals:d});
+		}
+		return new Custom(o, r, millisec, easingFunc, onend);
+	}
+
+	function numTo(v) { return '' + v; }
+	
+	function colorComponentTo(v) { var s = '0' + Math.round(v).toString(16); return s.substr(s.length - 2); }
+	
+	function parseCssText(s) {
+		for (var r = {}, a = (s || '').replace(/^\s+|\s*;\s*$/g, '').split(/\s*;\s*/g), i = a.length - 1; i >= 0; --i) {
+			var p = a[i].split(/\s*:\s*/, 2);
+			if (p.length == 2 && p[1]) r[p[0]] = p[1];
+		}
+		return r;
+	}
+	
+	expose('create', create);
 
 })();

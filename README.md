@@ -1,7 +1,7 @@
 # Features
 
-* Very lightweight and small - less than 4K minified.
-* Tween animations for all style properties.
+* Very lightweight and small - only 5K minified.
+* Automatically create a tween animation between two styles.
 * Extensive easing functions (a.k.a. interpoletors) support: Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce.   
 Each easing function has its own versions of easing-in, easing-out, and easing-in-out.
 * Parallelizing or serializing animations.
@@ -13,28 +13,18 @@ Each easing function has its own versions of easing-in, easing-out, and easing-i
 
 	var o = document.getElementById('myDiv');
 	
-	// animini.Tween(element, stylePropName, startVal, endVal, postfix, millisec, easingFunc, onend)
-	var animateDown  = new animini.Tween(o, 'top', 100, 200, 'px', 1000, animini.easing.bounce.out;);
-	var animateUp    = new animini.Tween(o, 'top', 200, 100, 'px', 1000, animini.easing.bounce.out;);
-	var animateShow  = new animini.Tween(o, 'opacity', 1, 0, null, 1000, animini.easing.expo.in;);
-	var animateHide  = new animini.Tween(o, 'opacity', 0, 1, null, 1000, animini.easing.expo.in;);
+	// animini.create(element, fromCssText, toCssText, millisec, easingFunc, onend)
+	var animateDown = animini.create(o, 'top:100px; color:#000000;', 'top:200px; color:#ff0000;', 1000, easingFunc);
+	var animateUp   = animini.create(o, 'top:200px; color:#ff0000;', 'top:100px; color:#000000;', 1000, easingFunc);
 	
 	// animini.Pause(millisec, onend)
-	var pause        = new animini.Pause(250);
-	
-	// animini.Parallel(millisec, onend)
-	var parallelDown = new animini.Parallel(1000); // duration will override duration of child animations
-	var parallelUp   = new animini.Parallel(1000);
-	parallelDown.add(animateDown);
-	parallelDown.add(animateHide);
-	parallelUp.add(animateUp);
-	parallelUp.add(animateShow);
-	
+	var pause       = new animini.Pause(250);
+
 	// animini.Serial(onend)
-	var serial = new animini.Serial(animate);
-	serial.add(parallelDown);
+	var serial      = new animini.Serial(animate);
+	serial.add(animateDown);
 	serial.add(pause);
-	serial.add(parallelUp);
+	serial.add(animateUp);
 	serial.add(pause);
 	
 	serial.start();
@@ -42,8 +32,30 @@ Each easing function has its own versions of easing-in, easing-out, and easing-i
 
 # Documentation
 
-### The animini.Animation class
-The base animation class. It is abstract and should not be created directly - create one of the derived classes instead (`Tween`, `Pause`, `Parallel` or `Serial`). However, it exposes the following methods and properties:
+## The animini.create() factory method
+
+	animini.create(element, fromStyle, toStyle, millisec, easingFunc, onend)
+
+Use this method to automatically create a tween animation between two styles. The styles should be written in the property form notation (e.g., `marginTop` instead of `margin-top`). You can have as many style properties as you like, and the order doesn't need to match between the fromStyle and the toStyle.
+
+Arguments:
+
+* *element* - the HTML DOM element that should be animated. Stored in the `obj` property of the returned animation.
+* *fromStyle* - the 'before' style (e.g., `'top: 10ex; color: #FD0; opacity: 0.75'`).
+* *toStyle* - the 'after' style (e.g., `'top: 15ex; color: #D80; opacity: 0.9'`).
+* *millisec* - an optional duration of the animation. Defaults to `1000`. Stored in the `millisec` property of the returned animation.
+* *easingFunc* - an optional easing function that should be used. Defaults to `animini.easing.sine.inout`. Stored in the `easingFunc` property of the returned animation.
+* *onend* - an optional callback function that should be invoked when the animation ends. The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property of the returned animation.
+
+Returns: An animation object. To run the animation, simply call the returned animation's `start()` method.
+
+For example:
+
+	animini.create(document.getElementById('myElement'), 'left:20px', 'left:50px').start();
+
+
+## The animini.Animation class
+The base animation class. It is abstract and should not be created directly. Use the `animini.create()` factory method instead, or create one of the derived classes (`Pause`, `Parallel` or `Serial`). However, it exposes the following methods and properties:
 
 * `millisec` property - the duration of the animation. Defaults to 1000 (i.e., one second)
 * `easingFunc` property - the easing function that should be used. Defaults to `animini.easing.sine.inout`
@@ -51,32 +63,15 @@ The base animation class. It is abstract and should not be created directly - cr
 * `start()` method - tells animini to start playing the animation
 * `stop()` method - tells animini to stop plaing the animation
 
-### The animini.Tween class
-The tweening animation class. It exposes the following methods and properties, in addition to those exposed by `animini.Animation`:
-
-* `animini.Tween(element, stylePropName, startVal, endVal, postfix, millisec, easingFunc, onend)` - the constructor. Use with `new` (see example above). The arguments:
-	* *element* - the HTML DOM element that should be animated. Stored in the `obj` property.
-	* *stylePropName* - the name of the style property that should be animated. Stored in the `prop` property.
-	* *startVal* - the start value of the animated property. Stored in the `startVal` property.
-	* *endVal* - the end value of the animated property. Stored in the `endVal` property.
-	* *postfix* - an optional postfix that should be appended to the value of the animated property (e.g., `'px'`, `'%'`). Defaults to `''`. Stored in the `postfix` property.
-	* *millisec* - an optional duration of the animation. Defaults to `1000`. Stored in the `millisec` property.
-	* *easingFunc* - an optional easing function that should be used. Defaults to `animini.easing.sine.inout`. Stored in the `easingFunc` property.
-	* *onend* - an optional callback function that should be invoked when the animation ends. The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
-* `obj` property - the HTML DOM element that should be animated.
-* `prop` property - the name of the style property that should be animated.
-* `startVal` property - the start value of the animated property.
-* `endVal` property - the end value of the animated property.
-* `postfix` property - the postfix that should be appended to the value of the animated property (e.g., `'px'`, `'%'`).
-
-### The animini.Pause class
+## The animini.Pause class
 Used for pausing for a specified amount of time (usually as a part of `animini.Serial` animation). It exposes the following methods and properties, in addition to those exposed by `animini.Animation`:
 
 * `animini.Pause(millisec, onend)` - the constructor. Use with `new` (see example above). The arguments:
 	* *millisec* - an optional duration of the pause. Defaults to `1000`. Stored in the `millisec` property.
 	* *onend* - an optional callback function that should be invoked when the pause ends. The callback will be called only if the pause ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
 
-### The animini.Parallel class
+
+## The animini.Parallel class
 Used to parallelize several animations. It exposes the following methods and properties, in addition to those exposed by `animini.Animation`:
 
 * `animini.Parallel(millisec, onend)` - the constructor. Use with `new` (see example above). The arguments:
@@ -84,14 +79,16 @@ Used to parallelize several animations. It exposes the following methods and pro
 	* *onend* - an optional callback function that should be invoked when the parallelized animations end (in addition to any callbacks specified in those animations). The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
 * `add(animation)` method - adds an animation to the parallelization list.
 
-### The animini.Serial class
+
+## The animini.Serial class
 Used to serlize several animations one after the other. It exposes the following methods and properties, in addition to those exposed by `animini.Animation`:
 
 * `animini.Serial(onend)` - the constructor. Use with `new` (see example above). The arguments:
 	* *onend* - an optional callback function that should be invoked when the serlized animations end (in addition to any callbacks specified in those animations). The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
 * `add(animation)` method - adds an animation to the serialize queue.
 
-### The animini.easing functions
+
+## The animini.easing functions
 An easing function is any function that takes a single numeric argument and returns a numeric result. Both the argument and the return value should be between 0 and 1. Some easing function (for example `elastic`) return sometimes values below 0 or above 1, but this does not always make sense for all properties (for example for opacity). In any case, the easing function should return 0 for 0, and 1 for 1.
 
 Each easing type includes a triplet of functions:

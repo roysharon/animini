@@ -1,14 +1,16 @@
 <html>
 	<head>
 		<title>Animini demo</title>
-		<script src="animini.js"></script>
+		<script src="animini.min.js"></script>
 	</head>
 	<body>
 		<div>
+			<b>Choose easing function:</b><br>
 			<table>
 				<tr>
 					<script>
 					
+// display easing functions
 for (var i in animini.easing) {
 	document.write('<td style="padding-right:3ex;">');
 	var a = animini.easing[i];
@@ -31,26 +33,18 @@ var easingFunc = animini.easing.bounce.out;
 function animate() {
 	var o = document.getElementById('myDiv');
 	
-	// animini.Tween(element, stylePropName, startVal, endVal, postfix, millisec, easingFunc, onend)
-	var animateDown  = new animini.Tween(o, 'top', 100, 200, 'px', 1000, easingFunc);
-	var animateUp    = new animini.Tween(o, 'top', 200, 100, 'px', 1000, easingFunc);
-	var animateShow  = new animini.Tween(o, 'opacity', 1, 0, null, 1000, easingFunc);
-	var animateHide  = new animini.Tween(o, 'opacity', 0, 1, null, 1000, easingFunc);
-	var pause        = new animini.Pause(250);
-
-	// animini.Parallel(millisec, onend)
-	var parallelDown = new animini.Parallel(1000); // duration will override duration of child animations
-	var parallelUp   = new animini.Parallel(1000);
-	parallelDown.add(animateDown);
-	parallelDown.add(animateHide);
-	parallelUp.add(animateUp);
-	parallelUp.add(animateShow);
+	// animini.create(element, fromCssText, toCssText, millisec, easingFunc, onend)
+	var animateDown = animini.create(o, 'top:100px; color:#00aa00;', 'top:200px; color:#dd0000;', 1000, easingFunc);
+	var animateUp   = animini.create(o, 'top:200px; color:#dd0000;', 'top:100px; color:#00aa00;', 1000, easingFunc);
+	
+	// animini.Pause(millisec, onend)
+	var pause       = new animini.Pause(250);
 
 	// animini.Serial(onend)
-	var serial = new animini.Serial(animate);
-	serial.add(parallelDown);
+	var serial      = new animini.Serial(animate);
+	serial.add(animateDown);
 	serial.add(pause);
-	serial.add(parallelUp);
+	serial.add(animateUp);
 	serial.add(pause);
 	
 	serial.start();

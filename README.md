@@ -1,6 +1,6 @@
 # Features
 
-* Very lightweight and small - only 5K minified.
+* Very lightweight and small - less than 5K minified.
 * Automatically create a tween animation between two styles.
 * Extensive easing functions (a.k.a. interpoletors) support: Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce.   
 Each easing function has its own versions of easing-in, easing-out, and easing-in-out.
@@ -35,7 +35,7 @@ Each easing function has its own versions of easing-in, easing-out, and easing-i
 
 	animini.create(element, fromStyle, toStyle, millisec, easingFunc, onend)
 
-Use this method to automatically create a tween animation between two styles. The styles should be written in the property form notation (e.g., `marginTop` instead of `margin-top`). You can have as many style properties as you like, and the order doesn't need to match between the fromStyle and the toStyle.
+Use this method to automatically create a tween animation between two styles. The styles can be written in the css notation (e.g., `margin-top`) or the property notation (e.g., `marginTop`). You can have as many style properties as you like, and the order doesn't need to match between the fromStyle and the toStyle.
 
 Arguments:
 

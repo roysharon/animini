@@ -1,9 +1,10 @@
 <html>
 	<head>
 		<title>Animini demo</title>
-		<script src="animini.min.js"></script>
+		<script src="animini.comp.js"></script>
 	</head>
 	<body>
+
 		<div>
 			<b>Choose easing function:</b><br>
 			<table>
@@ -22,9 +23,11 @@ for (var i in animini.easing) {
 				</tr>
 			</table>
 		</div>
-		<div id="myDiv" style="position:absolute; top:100px; left:75px; font-size:2rem;">
+	
+		<div id="myDiv" style="font-size:2rem;">
 			Animini is the smallest tweening animation javascript library!
 		</div>
+
 	</body>
 	<script>
 
@@ -34,8 +37,8 @@ function animate() {
 	var o = document.getElementById('myDiv');
 	
 	// animini.create(element, fromCssText, toCssText, millisec, easingFunc, onend)
-	var animateDown = animini.create(o, 'top:100px; color:#00aa00;', 'top:200px; color:#dd0000;', 1000, easingFunc);
-	var animateUp   = animini.create(o, 'top:200px; color:#dd0000;', 'top:100px; color:#00aa00;', 1000, easingFunc);
+	var animateDown = animini.create(o, 'margin-top:0px; color:#00aa00;', 'margin-top:100px; color:#dd0000;', 1000, easingFunc);
+	var animateUp   = animini.create(o, 'margin-top:100px; color:#dd0000;', 'margin-top:0px; color:#00aa00;', 1000, easingFunc);
 	
 	// animini.Pause(millisec, onend)
 	var pause       = new animini.Pause(250);

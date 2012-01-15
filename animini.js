@@ -22,6 +22,10 @@
 		return r.substr(r.length - n);
 	}
 	
+	function toCamelCase(s) {
+		return s.toLowerCase().replace(/-([a-z])/, function (ig, m) { return m.toUpperCase(); });
+	}
+	
 	
 	//----- Easing functions -------------------------------------------------------
 
@@ -43,7 +47,7 @@
 		'bounce' : function (pos) { 
 			var x = 1 - pos, f = function (a, b) { return 1 - 121/16 * Math.pow(x - a / 11, 2) - b; };
 			return x < 4/11 ? f(0, 0) : x < 8/11 ? f(6, 3/4) : x < 10/11 ? f(9, 15/16) : f(10.5, 63/64);
-		},
+		}
 	};
 	
 	function out(f) { return function (pos) { return 1 - f(1 - pos); }; }
@@ -170,7 +174,7 @@
 	
 	Serial.prototype = new Animation();
 	
-	Serial.prototype.add =
+	Serial.prototype['add'] =
 	function (animation) {
 		this.animations.push(animation);
 	};
@@ -252,7 +256,7 @@
 					ti = ti.toLowerCase().replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, '#$1$1$2$2$3$3');
 					if (fi == ti) continue;
 				}
-				var c = {prefix:fa.slice(b, i - 1).join(' '), postfix:''};
+				var c = {prefix:fa.slice(b, i > 1 ? i - 1 : 0).join(' '), postfix:''};
 				b = i + 1;
 				if (/^#/.test(fi)) {
 					c.prefix += '#';
@@ -280,7 +284,7 @@
 					d.push(c);
 				}
 			}
-			d[d.length - 1].postfix += fa.slice(b).join(' ');
+			d[d.length - 1].postfix += ' ' + fa.slice(b).join(' ');
 			r.push({prop:p, vals:d});
 		}
 		return new Custom(o, r, millisec, easingFunc, onend);
@@ -293,7 +297,7 @@
 	function parseCssText(s) {
 		for (var r = {}, a = (s || '').replace(/^\s+|\s*;\s*$/g, '').split(/\s*;\s*/g), i = a.length - 1; i >= 0; --i) {
 			var p = a[i].split(/\s*:\s*/, 2);
-			if (p.length == 2 && p[1]) r[p[0]] = p[1];
+			if (p.length == 2 && p[1]) r[toCamelCase(p[0])] = p[1];
 		}
 		return r;
 	}

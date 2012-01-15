@@ -23,7 +23,7 @@
 	}
 	
 	function toCamelCase(s) {
-		return s.toLowerCase().replace(/-([a-z])/, function (ig, m) { return m.toUpperCase(); });
+		return s.toLowerCase().replace(/-([a-z])/g, function (ig, m) { return m.toUpperCase(); });
 	}
 	
 	
@@ -241,6 +241,9 @@
 		}
 	};
 	
+	var valRE = /^(.*?)(-?(?:\d+(?:\.\d*)?|\.\d+))(.*)$/;
+	var colorRE = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/;
+	
 	function create(o, fromCssText, toCssText, millisec, easingFunc, onend) {
 		var from = parseCssText(fromCssText), to = parseCssText(toCssText), r = [];
 		for (var p in from) {
@@ -248,25 +251,23 @@
 			if (!tp) continue;
 			var fa = from[p].split(/\s+/g), n = fa.length, ta = tp.split(/\s+/g);
 			if (ta.length != n) continue;
-			for (var i = 0, b = 0, d = []; i < n; ++i) {
+			for (var i = 0, b = 0, d = [], last; i < n; ++i) {
 				var fi = fa[i], ti = ta[i];
 				if (fi == ti) continue;
+				var c = {prefix:fa.slice(b, i > 0 ? i : 0).join(' '), postfix:''};
 				if (/^#/.test(fi)) {  // possibly a color in 3 hex digits
-					fi = fi.toLowerCase().replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, '#$1$1$2$2$3$3');
-					ti = ti.toLowerCase().replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, '#$1$1$2$2$3$3');
+					fi = fi.toLowerCase().replace(colorRE, '#$1$1$2$2$3$3');
+					ti = ti.toLowerCase().replace(colorRE, '#$1$1$2$2$3$3');
 					if (fi == ti) continue;
-				}
-				var c = {prefix:fa.slice(b, i > 1 ? i - 1 : 0).join(' '), postfix:''};
-				b = i + 1;
-				if (/^#/.test(fi)) {
-					c.prefix += '#';
+					
+					var addToPrefix = '#';
 					function compareColorComponent(k) {
 						var fk = fi.substr(k, 2), tk = ti.substr(k, 2);
 						if (fk != tk) { 
 							c.start = parseInt(fk, 16);
 							c.delta = parseInt(tk, 16) - c.start;
 							c.to = colorComponentTo;
-							d.push(c);
+							d.push(last = c);
 							c = {prefix:'', postfix:''};
 						} else c.prefix += fk;
 					}
@@ -275,20 +276,29 @@
 					compareColorComponent(5);
 					if (c.prefix) d[d.length - 1].postfix = c.prefix;
 				} else {
-					var fk = parseFloat(fi), tk = parseFloat(ti);
+					var fm = valRE.exec(fi), tm = valRE.exec(ti);
+					if (!fm || !tm) continue;
+
+					addToPrefix = fm[1];
+					var fk = parseFloat(fm[2]), tk = parseFloat(tm[2]);
 					if (fk == tk) continue;
+					
 					c.start = fk;
 					c.delta = tk - fk;
 					c.to = numTo;
-					c.postfix = fi.replace(/^-?(?:\d+(?:\.\d*)?|\.\d+)/, '');
-					d.push(c);
+					c.postfix = fm[3];
+					d.push(last = c);
 				}
+				last.prefix = appendVal(last.prefix, addToPrefix);
+				b = i + 1;
 			}
-			d[d.length - 1].postfix += ' ' + fa.slice(b).join(' ');
+			last.postfix = appendVal(last.postfix, fa.slice(b).join(' '));
 			r.push({prop:p, vals:d});
 		}
 		return new Custom(o, r, millisec, easingFunc, onend);
 	}
+	
+	function appendVal(s, v) { return (s ? s + ' ' : '') + v; }
 
 	function numTo(v) { return '' + v; }
 	

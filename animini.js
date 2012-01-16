@@ -29,9 +29,21 @@
 	
 	//----- Easing functions -------------------------------------------------------
 
+	function out(f) { return function (pos) { return 1 - f(1 - pos); }; }
+
+	function inout(f) { return function (pos) { return pos < 0.5 ? f(pos * 2) / 2 : (1 - f(2 - pos * 2) / 2); }; }
+
+	function easing(easeInFunc) {
+		var f = inout(easeInFunc);
+		f['in'] = easeInFunc;
+		f['out'] = out(easeInFunc);
+		f['inout'] = inout(easeInFunc);
+		return f;
+	}
+	
 	var elastAmp = 4 / 3, elastPeriod = 1 / 3, elastc = elastPeriod * 2 * Math.PI * Math.asin(1 / elastAmp);
 	
-	var easing = {
+	var easingFuncs = {
 		'linear' : function (pos) { return pos; },
 		'quad' : function (pos) { return Math.pow(pos, 2); },
 		'cubic' : function (pos) { return Math.pow(pos, 3); },
@@ -50,13 +62,8 @@
 		}
 	};
 	
-	function out(f) { return function (pos) { return 1 - f(1 - pos); }; }
-	function inout(f) { return function (pos) { return pos < 0.5 ? f(pos * 2) / 2 : (1 - f(2 - pos * 2) / 2); }; }
 	function setupEasingFuncs() {
-		for (var i in easing) {
-			var f = easing[i];
-			easing[i] = {'in':f, 'out':out(f), 'inout':inout(f)};
-		}
+		for (var i in easingFuncs) easing[i] = easing(easingFuncs[i]);
 	}
 	setupEasingFuncs();
 	
@@ -230,8 +237,7 @@
 	
 	Custom.prototype.doStep = 
 	function () {
-		var f = this.easingFunc.inout || this.easingFunc;
-		var y = f(this.pos);
+		var y = this.easingFunc(this.pos);
 		for (var p = this.props, i = p.length - 1; i >= 0; --i) {
 			for (var j = 0, s = [], a = p[i].vals, n = a.length; j < n; ++j) {
 				var c = a[j];
@@ -260,7 +266,8 @@
 					ti = ti.toLowerCase().replace(colorRE, '#$1$1$2$2$3$3');
 					if (fi == ti) continue;
 					
-					var addToPrefix = '#';
+					var addToPrefix = '';
+					c.prefix = appendVal(c.prefix, '#');
 					function compareColorComponent(k) {
 						var fk = fi.substr(k, 2), tk = ti.substr(k, 2);
 						if (fk != tk) { 

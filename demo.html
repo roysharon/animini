@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<title>Animini demo</title>
+		<script src="animini.min.js"></script>
+	</head>
+	<body>
+
+		<div id="myDiv" style="position:absolute; left:50px; top:50px; width:150px; height:150px;">
+			<script>
+
+// css3 transform is still experimental, although all modern browsers support it.
+// so we need to establish the browser-specific prefix for this property.
+function detect(vals, def) {
+	for (var s in vals) if (new RegExp(s, 'i').test(navigator.userAgent)) return vals[s];
+	return def;
+}
+var prefix = detect({webkit:'-webkit-', firefox:'-moz-', opera:'-o-', msie:'-ms-'}, '');
+
+// create the clock
+function createNumber(num) {
+	var d = Math.round((num % 12) * 30);
+	document.write('<div style="position:absolute; width:150px; height:150px; text-align:center; '+prefix+'transform:rotate(' + d + 'deg);">' + num + '</div>');
+}
+
+for (var i = 1; i <= 12; ++i) createNumber(i);
+
+			</script>
+		
+		</div>
+
+	</body>
+	<script>
+
+// build the animation
+var s1 = prefix + 'transform:scaleY(1.2) skew(-20deg,-20deg) rotate(0deg); color:#ffce00';
+var s2 = prefix + 'transform:scaleY(0.7) skew(40deg,-20deg) rotate(360deg); color:#a28400';
+var e = animini.cubic.inout;
+var animation = animini(s1, 3000, e, s2, 250, s2, 3000, e, s1, 250);
+
+animation('myDiv');
+
+	</script>
+</html>

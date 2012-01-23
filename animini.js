@@ -45,6 +45,60 @@
 	function setupEasingFuncs(o) {
 		for (var i in easingFuncs) o[i] = easing(easingFuncs[i], i);
 	}
+
+
+	//----- Animation -------------------------------------------------------------
+	
+	function animate(elements, stages) {
+		var stage = 0, count = stages.length, frame = 0, startTime = new Date().getTime(), active = [], timeout;
+
+		function applyOnElements(p, s) {
+			for (var j = elements.length - 1; j >= 0; --j) elements[j].style[p] = s;
+		}
+		
+		function stageFunc(stage, stageStartTime) {
+			var stageFrame = 0, stagePos = 0, stageEndTime = startTime + stage.t + stage.d;
+			return function (t) {
+				var d = stageEndTime - t;
+				if (d > 0) {
+					var fpms = ++stageFrame / (t - stageStartTime);
+					stagePos += (1 - stagePos) / fpms / d;
+					if (stagePos >= 1) stagePos = 1;
+				} else stagePos = 1;
+
+				var y = stage.e(stagePos);
+				for (var j = 0, s = [], a = stage.v, n = a.length; j < n; ++j) {
+					var c = a[j];
+					s.push((c.prefix || '') + c.to(y * c.delta + c.start) + (c.postfix || ''));
+				}
+				applyOnElements(stage.p, s.join(''));
+
+				return stagePos == 1;
+			};
+		}
+
+		function step() {
+			var t = new Date(), d = t - startTime;
+			for (var i = 0, n = active.length, finished = []; i < n; ++i) if (active[i](t)) finished.push(i);
+			for (i = finished.length - 1; i >= 0; --i) {
+				active.splice(finished[i], 1);
+				// TODO callbacks
+			}
+			while (stage < count && stages[stage].t <= d) {
+				var s = stages[stage++];
+				if (!s.v) continue;
+				if (s.v instanceof Array) {
+					var f = stageFunc(s, t);
+					active.push(f);
+					f(new Date());
+				} else applyOnElements(s.p, s.v);
+			}
+			if (active.length) timeout = window.setTimeout(step, 10);
+			else if (stage < count - 1) timeout = window.setTimeout(step, stages[stage + 1].t - new Date());
+		}
+		
+		step();
+	}
 	
 	
 	//----- Animation Compiler ----------------------------------------------------
@@ -226,154 +280,63 @@
 	}
 	
 	
-	//----- Parsing Animations ----------------------------------------------------
-	
-	function parseAnimation(animation, varArg) {
-		var args = animation.args, elements = animation.elements, millisec = animation.millisec, notstart;
-	
-		function parseNonArrayArg(arg) {
-			switch (typeof(arg)) {
-				case 'string':
-					if (arg) {
-						var o = document.getElementById(arg);
-						if (o && typeof(o.style) == 'object') elements.push(o);
-						else { args.push({p:'s', v:arg}); notstart = true; }
-					}
-					break
-				
-				case 'object':
-					if (typeof(arg.style) == 'object') elements.push(arg);
-					break;
-					
-				case 'number':
-					if (!notstart) { millisec = arg; notstart = true; }
-					else args.push({p:'m', v:arg});
-					break;
-				
-				case 'function':
-					args.push({p:arg.isEasing ? 'e' : 'c', v:arg});
-					notstart = true;
-					break;
-			}
-		}
-		
-		function parseArg(arg) {
-			if (arg instanceof Array) for (var i = 0, n = arg.length; i < n; ++i) parseArg(arg[i]);
-			else parseNonArrayArg(arg);
-		}
-	
-		parseArg(varArg);
-		animation.millisec = millisec;
-		animation.stages = compile(args, millisec);
-		if (animation.stages && elements.length) setTimeout(animation.start, 1);
-	}
-
-
-	//----- Animation class ---------------------------------------
-	
-	function Animation() {
-		this.args = [];
-		this.elements = [];
-	}
-	
-	Animation.prototype = {
-		
-		clone :
-		function () {
-			var r = new Animation();
-			r.millisec = this.millisec;
-			r.elements = this.elements.concat();
-			r.args = this.args.concat();
-			return r;
-		},
-		
-		start :
-		function () {
-			this.stage = -1;
-			this.nextStage();
-		},
-		
-		nextStage :
-		function (fastforward) {
-			if (this.stage < this.stages.length - 1) {
-				var s = this.stages[++this.stage];
-				this.callbacks = s.c;
-				if (s.p) {
-					this.props = s.p;
-					if (!fastforward) {
-						this.frame = 0;
-						this.pos = 1 / s.m;
-						this.easingFunc = s.e;
-						this.startTime = new Date().getTime();
-						this.endTime = this.startTime + s.m;
-						this.setTimer(this.step, 1);
-					} else this.pos = 1;
-					this.doStep();
-				} else if (!fastforward) this.setTimer(this.dispatchCallbacks);
-			}
-		},
-		
-		dispatchCallbacks :
-		function () {
-			for (var i = 0, n = this.callbacks.length; i < n; ++i) this.callbacks[i](this.elements);
-			this.nextStage();
-		},
-		
-		stop :
-		function () {
-			if (this.timeout != undefined) clearTimeout(this.timeout);
-			delete this.timeout;
-			while (this.stage < this.stages.length) this.nextStage(true);
-		},
-		
-		step :
-		function () {
-			var t = new Date().getTime(), d = this.endTime - t;
-			if (d > 0) {
-				this.fpms = ++this.frame / (t - this.startTime);
-				this.pos += (1 - this.pos) / this.fpms / d;
-				if (this.pos >= 1) this.pos = 1;
-			} else this.pos = 1;
-			this.doStep();
-			if (this.pos < 1) this.setTimer(this.step, 10);
-			else { delete this.timeout; this.dispatchCallbacks(); }
-		},
-		
-		doStep :
-		function () {
-			var y = this.easingFunc(this.pos), o = this.elements;
-			for (var p = this.props, i = p.length - 1; i >= 0; --i) {
-				for (var j = 0, s = [], a = p[i].vals, n = a.length; j < n; ++j) {
-					var c = a[j];
-					s.push(c.prefix + c.to(y * c.delta + c.start) + c.postfix);
-				}
-				for (j = o.length - 1; j >= 0; --j) o[j].style[p[i].prop] = s.join('');
-			}
-		},
-		
-		setTimer :
-		function (f, ms) {
-			var me = this;
-			this.timeout = window.setTimeout(function () { f.call(me); }, ms);
-		}
-	
-	};
-
-	
 	//----- Animation Factory -----------------------------------------------------
 	
-	function create() {
-		return parseFunc().apply(null, arguments);
-	}
-	
-	function parseFunc(animation) {
+	function parseFunc(args, millisec) {
+		args = args.concat();
+		var elements = [];
+		
 		return function () {
-			var a = animation ? animation.clone() : new Animation();
-			parseAnimation(a, Array.prototype.slice.call(arguments, 0));
-			var r = parseFunc(a);
-			r.animation = a;
+			
+			function parseAnimation(varArg) {
+				var notstart;
+			
+				function parseNonArrayArg(arg) {
+					switch (typeof(arg)) {
+						case 'string':
+							if (arg) {
+								var o = document.getElementById(arg);
+								if (o && typeof(o.style) == 'object') elements.push(o);
+								else { args.push({p:'s', v:arg}); notstart = true; }
+							}
+							break
+						
+						case 'object':
+							if (typeof(arg.style) == 'object') elements.push(arg);
+							break;
+							
+						case 'number':
+							if (!notstart) { millisec = arg; notstart = true; }
+							else args.push({p:'m', v:arg});
+							break;
+						
+						case 'function':
+							args.push({p:arg.isEasing ? 'e' : 'c', v:arg});
+							notstart = true;
+							break;
+					}
+				}
+				
+				function parseArg(arg) {
+					if (arg instanceof Array) for (var i = 0, n = arg.length; i < n; ++i) parseArg(arg[i]);
+					else parseNonArrayArg(arg);
+				}
+			
+				parseArg(varArg);
+				var stages = compile(args, millisec);
+				if (stages && elements.length) animate(elements, stages);
+				return stages;
+			}
+			
+			var stages = parseAnimation(Array.prototype.slice.call(arguments, 0));
+			var r = parseFunc(args, millisec);
+			r.stages = stages;
 			return r;
 		};
+	}
+
+	function create() {
+		return parseFunc([]).apply(null, arguments);
 	}
 	
 	create['easing'] = easing;

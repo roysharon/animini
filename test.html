@@ -19,7 +19,7 @@ var tested = 0, failed = 0;
 
 function test(args, expected) {
 	var animation = animini.apply(null, args);
-	for (var a = animation.animation.stages, i = a && a.length - 1; i >= 0; --i) a[i].e = a[i].e && a[i].e.isEasing;
+	for (var a = animation.stages, i = a && a.length - 1; i >= 0; --i) a[i].e = a[i].e && a[i].e.isEasing;
 	var result = JSON.stringify(a);
 	expected = JSON.stringify(expected);
 	var success = result == expected;
@@ -44,7 +44,6 @@ function finalize() {
 		'Failed '+failed+' of '+tested+' tests.' : 
 		'All '+tested+' tests passed.';
 }
-
 
 test(
 	[],
@@ -218,6 +217,44 @@ test(
 				{"start":40,"delta":10,"postfix":"px"}
 			]
 		}
+	]
+);
+test(
+	['top:0px', animini.bounce.out, 'top:100px', animini.bounce.in, 'top:0px'],
+	[
+		{"t":0,"d":1000,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
+		{"t":1000,"d":1000,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+	]
+);
+test(
+	['top:0px', animini.bounce.out, 1300, 'top:100px', animini.bounce.in, 700, 'top:0px'],
+	[
+		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
+		{"t":1300,"d":700,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+	]
+);
+test(
+	[900, 'top:0px', animini.bounce.out, 1300, 'top:100px', animini.bounce.in, 700, 'top:0px'],
+	[
+		{"t":0,"d":585,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
+		{"t":585,"d":315,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+	]
+);
+test(
+	['top:0px', animini.bounce.out, 1300, 'top:100px', 250, 'top:100px', animini.bounce.in, 700, 'top:0px'],
+	[
+		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
+		{"t":1300,"d":250,"p":"top","v":"100px"},
+		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+	]
+);
+test(
+	['top:0px', animini.bounce.out, 1300, 'top:100px', 250, 'top:100px', animini.bounce.in, 700, 'top:0px', 250],
+	[
+		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
+		{"t":1300,"d":250,"p":"top","v":"100px"},
+		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]},
+		{"t":2500,"d":0}
 	]
 );
 

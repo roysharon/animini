@@ -1,0 +1,227 @@
+<html>
+	<head>
+		<title>Animini Tests</title>
+		<script src="animini.min.js"></script>
+		<style>
+			.caption { display:inline-block; width:10ex; font-weight:bold; color:gray; }
+			td { border-bottom:1px solid #ccc; }
+		</style>
+	</head>
+	<body>
+		<table>
+			<tbody id="table">
+			</tbody>
+		</table>
+	</body>
+	<script>
+
+var tested = 0, failed = 0;
+
+function test(args, expected) {
+	var animation = animini.apply(null, args);
+	for (var a = animation.animation.stages, i = a && a.length - 1; i >= 0; --i) a[i].e = a[i].e && a[i].e.isEasing;
+	var result = JSON.stringify(a);
+	expected = JSON.stringify(expected);
+	var success = result == expected;
+	var mark = success ? '<span style="color:#008000">\u2714</span>' : '<span style="color:#ff0000">\u2718</span>';
+	var tr = document.getElementById('table').appendChild(document.createElement('tr'));
+	tr.appendChild(document.createElement('TD')).innerHTML = ++tested;
+	tr.appendChild(document.createElement('TD')).innerHTML = mark;
+	var td = tr.appendChild(document.createElement('TD'));
+	function add(p, caption, value) {
+		p.appendChild(document.createElement('DIV')).innerHTML = '<span class="caption">'+caption+':</span>'+value;
+	}
+	add(td, 'Testing', JSON.stringify(args));
+	if (!success) {
+		add(td, 'Expected', expected);
+		add(td, 'Actual', result);
+		++failed;
+	}
+}
+
+function finalize() {
+	document.body.appendChild(document.createElement('DIV')).innerHTML = failed ? 
+		'Failed '+failed+' of '+tested+' tests.' : 
+		'All '+tested+' tests passed.';
+}
+
+
+test(
+	[],
+	undefined
+);
+test(
+	[1300],
+	undefined
+);
+test(
+	[1300, 250],
+	[{"t":1300,"d":0}]
+);
+test(
+	[1300, 250, 500],
+	[{"t":433,"d":0}, {"t":1300,"d":0}]
+);
+test(
+	[1300, 250, 0],
+	[{"t":1300,"d":0}]
+);
+test(
+	[1300, 0, 250],
+	[{"t":1300,"d":0}]
+);
+test(
+	['top:100px'],
+	[{"t":0,"d":1000,"p":"top","v":"100px"}]
+);
+test(
+	['top:100px', 'top:100px'],
+	[{"t":0,"d":1000,"p":"top","v":"100px"}]
+);
+test(
+	['top:100px', 'top:100px', 'top:100px'],
+	[{"t":0,"d":1000,"p":"top","v":"100px"},{"t":1000,"d":1000,"p":"top","v":"100px"}]
+);
+test(
+	['top:100px', 'left:100px'],
+	[{"t":0,"d":0,"p":"top","v":"100px"},{"t":1000,"d":0,"p":"left","v":"100px"}]
+);
+test(
+	[1300, 'top:100px'],
+	[{"t":0,"d":1300,"p":"top","v":"100px"}]
+);
+test(
+	[1300, 250, 'top:100px'],
+	[{"t":250,"d":1050,"p":"top","v":"100px"}]
+);
+test(
+	[1300, 250, 'top:100px', 500],
+	[{"t":433,"d":867,"p":"top","v":"100px"}]
+);
+test(
+	['top:100px', 'top:200px'],
+	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}]
+);
+test(
+	[' top   :	100px ', ' ; ;top\r\n:\r\n200px ; \n;  '],
+	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}]
+);
+test(
+	['top:100px', 'top:200px', 'top:250px'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
+		{"t":1000,"d":1000,"e":"sine.inout","p":"top","v":[{"start":200,"delta":50,"postfix":"px"}]}
+	]
+);
+test(
+	['top:100px; margin-top:20px', 'marginTop:40px; top:200px'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[{"start":20,"delta":20,"postfix":"px"}]},
+		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}
+	]
+);
+test(
+	['top:100px; margin-top:20px', 'marginTop:40px; left:50px; top:200px'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[{"start":20,"delta":20,"postfix":"px"}]},
+		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
+		{"t":1000,"d":0,"p":"left","v":"50px"}
+	]
+);
+test(
+	['top:100px; margin-top:20px', 'left:50px; marginTop:40px', 'left:120px; top:200px'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[{"start":20,"delta":20,"postfix":"px"}]},
+		{"t":0,"d":2000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
+		{"t":1000,"d":1000,"e":"sine.inout","p":"left","v":[{"start":50,"delta":70,"postfix":"px"}]}
+	]
+);
+test(
+	['top:100px', 300, 'top:200px'],
+	[{"t":0,"d":300,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}]
+);
+test(
+	['top:100px', 300, 200, 'top:200px'],
+	[
+		{"t":0,"d":500,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
+		{"t":300,"d":0}
+	]
+);
+test(
+	['top:100px', 300, 'top:100px', 200, 'top:200px'],
+	[
+		{"t":0,"d":300,"p":"top","v":"100px"},
+		{"t":300,"d":200,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}
+	]
+);
+test(
+	[400, 'top:100px', 300, 'top:100px', 200, 'top:200px'],
+	[
+		{"t":0,"d":240,"p":"top","v":"100px"},
+		{"t":240,"d":160,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}
+	]
+);
+test(
+	['color:#ff0000', 'color:#880044'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"color","v":
+			[
+				{"start":255,"delta":-119,"prefix":"#"},
+				{"start":0,"delta":68,"prefix":"00"}
+			]
+		}
+	]
+);
+test(
+	['color:#f00', 'color:#840'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"color","v":
+			[
+				{"start":255,"delta":-119,"prefix":"#"},
+				{"start":0,"delta":68,"postfix":"00"}
+			]
+		}
+	]
+);
+test(
+	['border:1px solid #f00', 'border:10px solid #884400'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"border","v":
+			[
+				{"start":1,"delta":9,"postfix":"px"},
+				{"start":255,"delta":-119,"prefix":"solid #"},
+				{"start":0,"delta":68,"postfix":"00"}
+			]
+		}
+	]
+);
+test(
+	['transform:scaleY(0.5) skew(-20deg,-20deg) rotate(0deg)', 'transform:scaleY(1.2) skew(40deg,-20deg) rotate(360deg)'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"transform","v":
+			[
+				{"start":0.5,"delta":0.7,"prefix":"scaleY(","postfix":")"},
+				{"start":-20,"delta":60,"prefix":"skew(","postfix":"deg,-20deg)"},
+				{"start":0,"delta":360,"prefix":"rotate(","postfix":"deg)"}
+			]
+		}
+	]
+);
+test(
+	['margin: 0px 0px 50px 40px', 'margin:20px 30px 40px 50px'],
+	[
+		{"t":0,"d":1000,"e":"sine.inout","p":"margin","v":
+			[
+				{"start":0,"delta":20,"postfix":"px"},
+				{"start":0,"delta":30,"postfix":"px"},
+				{"start":50,"delta":-10,"postfix":"px"},
+				{"start":40,"delta":10,"postfix":"px"}
+			]
+		}
+	]
+);
+
+finalize();
+
+	</script>
+</html>

@@ -69,7 +69,7 @@
 				var y = stage.e(stagePos);
 				for (var j = 0, s = [], a = stage.v, n = a.length; j < n; ++j) {
 					var c = a[j];
-					s.push((c.prefix || '') + c.to(y * c.delta + c.start) + (c.postfix || ''));
+					s.push(c[2] + c.to(y * c[1] + c[0]) + c[3]);
 				}
 				applyOnElements(stage.p, s.join(''));
 
@@ -239,9 +239,8 @@
 		var vals = [], last;
 		
 		function addVal(prefix, postfix, start, end, to) {
-			vals.push(last = {start:start, delta:end - start, to:to});
-			if (prefix) last.prefix = prefix;
-			if (postfix) last.postfix = postfix;
+			vals.push(last = [start, end - start, prefix, postfix]);
+			last.to = to;
 		} 
 		
 		for (var i = 0, n = fa.length, b = 0; i < n; ++i) {
@@ -253,7 +252,7 @@
 				
 				function compareColorComponent(k) {
 					var fk = fi.substr(k, 2), tk = ti.substr(k, 2);
-					if (fk != tk) { 
+					if (fk != tk) {
 						addVal(prefix, postfix, parseInt(fk, 16), parseInt(tk, 16), colorComponentToString);
 						prefix = postfix = '';
 					} else prefix += fk;
@@ -262,7 +261,7 @@
 				compareColorComponent(3);
 				compareColorComponent(5);
 				
-				if (prefix) last.postfix = prefix;
+				if (prefix) last[3] = prefix;
 			} else {
 				var fm = valRE.exec(fi), tm = valRE.exec(ti);
 				if (!fm || !tm) continue;
@@ -275,7 +274,7 @@
 			b = i + 1;
 		}
 		if (!last) return fa.join(' ');
-		last.postfix = appendVal(last.postfix, fa.slice(b).join(' '));
+		last[3] = appendVal(last[3], fa.slice(b).join(' '));
 		return vals;
 	}
 	
@@ -330,7 +329,7 @@
 			
 			var stages = parseAnimation(Array.prototype.slice.call(arguments, 0));
 			var r = parseFunc(args, millisec);
-			r.stages = stages;
+			r['stages'] = stages;
 			return r;
 		};
 	}

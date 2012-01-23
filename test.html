@@ -99,50 +99,50 @@ test(
 );
 test(
 	['top:100px', 'top:200px'],
-	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}]
+	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	[' top   :	100px ', ' ; ;top\r\n:\r\n200px ; \n;  '],
-	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}]
+	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	['top:100px', 'top:200px', 'top:250px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
-		{"t":1000,"d":1000,"e":"sine.inout","p":"top","v":[{"start":200,"delta":50,"postfix":"px"}]}
+		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
+		{"t":1000,"d":1000,"e":"sine.inout","p":"top","v":[[200,50,"","px"]]}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'marginTop:40px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[{"start":20,"delta":20,"postfix":"px"}]},
-		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}
+		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'marginTop:40px; left:50px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[{"start":20,"delta":20,"postfix":"px"}]},
-		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
+		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
 		{"t":1000,"d":0,"p":"left","v":"50px"}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'left:50px; marginTop:40px', 'left:120px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[{"start":20,"delta":20,"postfix":"px"}]},
-		{"t":0,"d":2000,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
-		{"t":1000,"d":1000,"e":"sine.inout","p":"left","v":[{"start":50,"delta":70,"postfix":"px"}]}
+		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":2000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
+		{"t":1000,"d":1000,"e":"sine.inout","p":"left","v":[[50,70,"","px"]]}
 	]
 );
 test(
 	['top:100px', 300, 'top:200px'],
-	[{"t":0,"d":300,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}]
+	[{"t":0,"d":300,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	['top:100px', 300, 200, 'top:200px'],
 	[
-		{"t":0,"d":500,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]},
+		{"t":0,"d":500,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
 		{"t":300,"d":0}
 	]
 );
@@ -150,14 +150,14 @@ test(
 	['top:100px', 300, 'top:100px', 200, 'top:200px'],
 	[
 		{"t":0,"d":300,"p":"top","v":"100px"},
-		{"t":300,"d":200,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}
+		{"t":300,"d":200,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	[400, 'top:100px', 300, 'top:100px', 200, 'top:200px'],
 	[
 		{"t":0,"d":240,"p":"top","v":"100px"},
-		{"t":240,"d":160,"e":"sine.inout","p":"top","v":[{"start":100,"delta":100,"postfix":"px"}]}
+		{"t":240,"d":160,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
@@ -165,8 +165,8 @@ test(
 	[
 		{"t":0,"d":1000,"e":"sine.inout","p":"color","v":
 			[
-				{"start":255,"delta":-119,"prefix":"#"},
-				{"start":0,"delta":68,"prefix":"00"}
+				[255,-119,"#",""],
+				[0,68,"00",""]
 			]
 		}
 	]
@@ -176,8 +176,8 @@ test(
 	[
 		{"t":0,"d":1000,"e":"sine.inout","p":"color","v":
 			[
-				{"start":255,"delta":-119,"prefix":"#"},
-				{"start":0,"delta":68,"postfix":"00"}
+				[255,-119,"#",""],
+				[0,68,"","00"]
 			]
 		}
 	]
@@ -187,9 +187,9 @@ test(
 	[
 		{"t":0,"d":1000,"e":"sine.inout","p":"border","v":
 			[
-				{"start":1,"delta":9,"postfix":"px"},
-				{"start":255,"delta":-119,"prefix":"solid #"},
-				{"start":0,"delta":68,"postfix":"00"}
+				[1,9,"","px"],
+				[255,-119,"solid #",""],
+				[0,68,"","00"]
 			]
 		}
 	]
@@ -199,9 +199,9 @@ test(
 	[
 		{"t":0,"d":1000,"e":"sine.inout","p":"transform","v":
 			[
-				{"start":0.5,"delta":0.7,"prefix":"scaleY(","postfix":")"},
-				{"start":-20,"delta":60,"prefix":"skew(","postfix":"deg,-20deg)"},
-				{"start":0,"delta":360,"prefix":"rotate(","postfix":"deg)"}
+				[0.5,0.7,"scaleY(",")"],
+				[-20,60,"skew(","deg,-20deg)"],
+				[0,360,"rotate(","deg)"]
 			]
 		}
 	]
@@ -211,10 +211,10 @@ test(
 	[
 		{"t":0,"d":1000,"e":"sine.inout","p":"margin","v":
 			[
-				{"start":0,"delta":20,"postfix":"px"},
-				{"start":0,"delta":30,"postfix":"px"},
-				{"start":50,"delta":-10,"postfix":"px"},
-				{"start":40,"delta":10,"postfix":"px"}
+				[0,20,"","px"],
+				[0,30,"","px"],
+				[50,-10,"","px"],
+				[40,10,"","px"]
 			]
 		}
 	]
@@ -222,38 +222,38 @@ test(
 test(
 	['top:0px', animini.bounce.out, 'top:100px', animini.bounce.in, 'top:0px'],
 	[
-		{"t":0,"d":1000,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
-		{"t":1000,"d":1000,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+		{"t":0,"d":1000,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
+		{"t":1000,"d":1000,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	['top:0px', animini.bounce.out, 1300, 'top:100px', animini.bounce.in, 700, 'top:0px'],
 	[
-		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
-		{"t":1300,"d":700,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
+		{"t":1300,"d":700,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	[900, 'top:0px', animini.bounce.out, 1300, 'top:100px', animini.bounce.in, 700, 'top:0px'],
 	[
-		{"t":0,"d":585,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
-		{"t":585,"d":315,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+		{"t":0,"d":585,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
+		{"t":585,"d":315,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	['top:0px', animini.bounce.out, 1300, 'top:100px', 250, 'top:100px', animini.bounce.in, 700, 'top:0px'],
 	[
-		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
+		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
 		{"t":1300,"d":250,"p":"top","v":"100px"},
-		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]}
+		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	['top:0px', animini.bounce.out, 1300, 'top:100px', 250, 'top:100px', animini.bounce.in, 700, 'top:0px', 250],
 	[
-		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[{"start":0,"delta":100,"postfix":"px"}]},
+		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
 		{"t":1300,"d":250,"p":"top","v":"100px"},
-		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[{"start":100,"delta":-100,"postfix":"px"}]},
+		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]},
 		{"t":2500,"d":0}
 	]
 );

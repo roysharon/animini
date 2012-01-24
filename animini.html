@@ -15,9 +15,9 @@
 for (var i in animini) if (i != 'easing') {
 	document.write('<td style="padding-right:3ex;">');
 	var a = animini[i];
-	document.write('<a href="#" onclick="e=animini.'+i+'.in">'+i+'.in</a><br>');
-	document.write('<a href="#" onclick="e=animini.'+i+'.out">'+i+'.out</a><br>');
-	document.write('<a href="#" onclick="e=animini.'+i+'.inout">'+i+'.inout</a><br>');
+	document.write('<a href="#" onclick="e=animini.'+i+'.i">'+i+'.i</a><br>');
+	document.write('<a href="#" onclick="e=animini.'+i+'.o">'+i+'.o</a><br>');
+	document.write('<a href="#" onclick="e=animini.'+i+'.io">'+i+'.io</a><br>');
 	document.write('</td>');
 }
 
@@ -33,7 +33,7 @@ for (var i in animini) if (i != 'easing') {
 	</body>
 	<script>
 
-var e = animini.bounce.out;
+var e = animini.bounce.o;
 
 var s1 = 'margin-top:0px;   color:#00aa00;';
 var s2 = 'margin-top:100px; color:#dd0000;';

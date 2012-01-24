@@ -3,21 +3,23 @@
 // Using or modifying this project is subject to the very permissive MIT License (http://creativecommons.org/licenses/MIT/)
 
 (function () {
+
+    'use strict';
 	
 		
 	//----- Easing functions -------------------------------------------------------
 
 	function markAsEasing(f, n, t) { f.isEasing = n + '.' + t; return f; }
 
-	function out(f, n) { return markAsEasing(function (pos) { return 1 - f(1 - pos); }, n, 'out'); }
+	function out(f, n) { return markAsEasing(function (pos) { return 1 - f(1 - pos); }, n, 'o'); }
 
-	function inout(f, n) { return markAsEasing(function (pos) { return pos < 0.5 ? f(pos * 2) / 2 : (1 - f(2 - pos * 2) / 2); }, n, 'inout'); }
+	function inout(f, n) { return markAsEasing(function (pos) { return pos < 0.5 ? f(pos * 2) / 2 : (1 - f(2 - pos * 2) / 2); }, n, 'io'); }
 
 	function easing(easeInFunc, name) {
 		var f = inout(easeInFunc, name);
-		f['in'] = markAsEasing(easeInFunc, name, 'in');
-		f['out'] = out(easeInFunc, name);
-		f['inout'] = inout(easeInFunc, name);
+		f['i'] = markAsEasing(easeInFunc, name, 'i');
+		f['o'] = out(easeInFunc, name);
+		f['io'] = inout(easeInFunc, name);
 		return f;
 	}
 	
@@ -79,22 +81,19 @@
 
 		function step() {
 			var t = new Date(), d = t - startTime;
+			while (stage < count && stages[stage].t <= d) {
+				var s = stages[stage++];
+				if (!s.v) continue;
+				if (s.v instanceof Array) active.push(stageFunc(s, t));
+				else applyOnElements(s.p, s.v);
+			}
 			for (var i = 0, n = active.length, finished = []; i < n; ++i) if (active[i](t)) finished.push(i);
 			for (i = finished.length - 1; i >= 0; --i) {
 				active.splice(finished[i], 1);
 				// TODO callbacks
 			}
-			while (stage < count && stages[stage].t <= d) {
-				var s = stages[stage++];
-				if (!s.v) continue;
-				if (s.v instanceof Array) {
-					var f = stageFunc(s, t);
-					active.push(f);
-					f(new Date());
-				} else applyOnElements(s.p, s.v);
-			}
 			if (active.length) timeout = window.setTimeout(step, 10);
-			else if (stage < count - 1) timeout = window.setTimeout(step, stages[stage + 1].t - new Date());
+			else if (stage < count - 1) timeout = window.setTimeout(step, Math.max(0, startTime + stages[stage + 1].t - new Date()));
 		}
 		
 		step();
@@ -236,30 +235,31 @@
 	}
 	
 	function parseAnimatedVals(fa, ta) {
-		var vals = [], last;
+		var vals = [], last, prefix, postfix;
 		
 		function addVal(prefix, postfix, start, end, to) {
 			vals.push(last = [start, end - start, prefix, postfix]);
 			last.to = to;
 		} 
+				
+		function compareColorComponent(fi, ti, k) {
+			var fk = fi.substr(k, 2), tk = ti.substr(k, 2);
+			if (fk != tk) {
+				addVal(prefix, postfix, parseInt(fk, 16), parseInt(tk, 16), colorComponentToString);
+				prefix = postfix = '';
+			} else prefix += fk;
+		}
 		
 		for (var i = 0, n = fa.length, b = 0; i < n; ++i) {
 			var fi = fa[i], ti = ta[i];
 			if (fi == ti) continue;
-			var prefix = fa.slice(b, i > 0 ? i : 0).join(' '), postfix = '';
+			prefix = fa.slice(b, i > 0 ? i : 0).join(' ');
+			postfix = '';
 			if (/^#/.test(fi)) {
 				prefix = appendVal(prefix, '#');
-				
-				function compareColorComponent(k) {
-					var fk = fi.substr(k, 2), tk = ti.substr(k, 2);
-					if (fk != tk) {
-						addVal(prefix, postfix, parseInt(fk, 16), parseInt(tk, 16), colorComponentToString);
-						prefix = postfix = '';
-					} else prefix += fk;
-				}
-				compareColorComponent(1);
-				compareColorComponent(3);
-				compareColorComponent(5);
+				compareColorComponent(fi, ti, 1);
+				compareColorComponent(fi, ti, 3);
+				compareColorComponent(fi, ti, 5);
 				
 				if (prefix) last[3] = prefix;
 			} else {
@@ -340,7 +340,7 @@
 	
 	create['easing'] = easing;
 	setupEasingFuncs(create);
-	var defaultEasing = create['sine']['inout'];
+	var defaultEasing = create['sine']['io'];
 
 	window['animini'] = create;
 

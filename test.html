@@ -1,6 +1,20 @@
 <html>
 	<head>
 		<title>Animini Tests</title>
+		<!--[if lt IE 8]>
+			<script>
+
+// Versions of IE older than IE8 may not have JSON.stringify which is needed for comparing actual with expected test results.
+// Following is a minified version of the JSON.stringify function, taken from https://github.com/douglascrockford/JSON-js
+
+var JSON;JSON||(JSON={});
+(function(){'use strict';function e(a){return 10>a?"0"+a:a}function n(a){o.lastIndex=0;return o.test(a)?'"'+a.replace(o,function(a){var b=p[a];return"string"===typeof b?b:"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+a+'"'}function k(e,i){var b,d,g,l,m=a,f,c=i[e];c&&"object"===typeof c&&"function"===typeof c.toJSON&&(c=c.toJSON(e));"function"===typeof h&&(c=h.call(i,e,c));switch(typeof c){case "string":return n(c);case "number":return isFinite(c)?""+c:"null";case "boolean":case "null":return""+
+c;case "object":if(!c)return"null";a+=j;f=[];if("[object Array]"===Object.prototype.toString.apply(c)){l=c.length;for(b=0;b<l;b+=1)f[b]=k(b,c)||"null";g=0===f.length?"[]":a?"[\n"+a+f.join(",\n"+a)+"\n"+m+"]":"["+f.join(",")+"]";a=m;return g}if(h&&"object"===typeof h){l=h.length;for(b=0;b<l;b+=1)"string"===typeof h[b]&&(d=h[b],(g=k(d,c))&&f.push(n(d)+(a?": ":":")+g))}else for(d in c)Object.prototype.hasOwnProperty.call(c,d)&&(g=k(d,c))&&f.push(n(d)+(a?": ":":")+g);g=0===f.length?"{}":a?"{\n"+a+f.join(",\n"+
+a)+"\n"+m+"}":"{"+f.join(",")+"}";a=m;return g}}if("function"!==typeof Date.prototype.toJSON)Date.prototype.toJSON=function(){return isFinite(this.valueOf())?this.getUTCFullYear()+"-"+e(this.getUTCMonth()+1)+"-"+e(this.getUTCDate())+"T"+e(this.getUTCHours())+":"+e(this.getUTCMinutes())+":"+e(this.getUTCSeconds())+"Z":null},String.prototype.toJSON=Number.prototype.toJSON=Boolean.prototype.toJSON=function(){return this.valueOf()};var o=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+a,j,p={"\u0008":"\\b","\t":"\\t","\n":"\\n","\u000c":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"},h;if("function"!==typeof JSON.stringify)JSON.stringify=function(e,i,b){var d;j=a="";if("number"===typeof b)for(d=0;d<b;d+=1)j+=" ";else"string"===typeof b&&(j=b);if((h=i)&&"function"!==typeof i&&("object"!==typeof i||"number"!==typeof i.length))throw Error("JSON.stringify");return k("",{"":e})}})();
+
+			</script>
+		<![endif]-->
 		<script src="animini.min.js"></script>
 		<style>
 			.caption { display:inline-block; width:10ex; font-weight:bold; color:gray; }
@@ -99,50 +113,50 @@ test(
 );
 test(
 	['top:100px', 'top:200px'],
-	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}]
+	[{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	[' top   :	100px ', ' ; ;top\r\n:\r\n200px ; \n;  '],
-	[{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}]
+	[{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	['top:100px', 'top:200px', 'top:250px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
-		{"t":1000,"d":1000,"e":"sine.inout","p":"top","v":[[200,50,"","px"]]}
+		{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
+		{"t":1000,"d":1000,"e":"sine.io","p":"top","v":[[200,50,"","px"]]}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'marginTop:40px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[[20,20,"","px"]]},
-		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}
+		{"t":0,"d":1000,"e":"sine.io","p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'marginTop:40px; left:50px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[[20,20,"","px"]]},
-		{"t":0,"d":1000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
+		{"t":0,"d":1000,"e":"sine.io","p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
 		{"t":1000,"d":0,"p":"left","v":"50px"}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'left:50px; marginTop:40px', 'left:120px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"marginTop","v":[[20,20,"","px"]]},
-		{"t":0,"d":2000,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
-		{"t":1000,"d":1000,"e":"sine.inout","p":"left","v":[[50,70,"","px"]]}
+		{"t":0,"d":1000,"e":"sine.io","p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":2000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
+		{"t":1000,"d":1000,"e":"sine.io","p":"left","v":[[50,70,"","px"]]}
 	]
 );
 test(
 	['top:100px', 300, 'top:200px'],
-	[{"t":0,"d":300,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}]
+	[{"t":0,"d":300,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	['top:100px', 300, 200, 'top:200px'],
 	[
-		{"t":0,"d":500,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]},
+		{"t":0,"d":500,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
 		{"t":300,"d":0}
 	]
 );
@@ -150,20 +164,20 @@ test(
 	['top:100px', 300, 'top:100px', 200, 'top:200px'],
 	[
 		{"t":0,"d":300,"p":"top","v":"100px"},
-		{"t":300,"d":200,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}
+		{"t":300,"d":200,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	[400, 'top:100px', 300, 'top:100px', 200, 'top:200px'],
 	[
 		{"t":0,"d":240,"p":"top","v":"100px"},
-		{"t":240,"d":160,"e":"sine.inout","p":"top","v":[[100,100,"","px"]]}
+		{"t":240,"d":160,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	['color:#ff0000', 'color:#880044'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"color","v":
+		{"t":0,"d":1000,"e":"sine.io","p":"color","v":
 			[
 				[255,-119,"#",""],
 				[0,68,"00",""]
@@ -174,7 +188,7 @@ test(
 test(
 	['color:#f00', 'color:#840'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"color","v":
+		{"t":0,"d":1000,"e":"sine.io","p":"color","v":
 			[
 				[255,-119,"#",""],
 				[0,68,"","00"]
@@ -185,7 +199,7 @@ test(
 test(
 	['border:1px solid #f00', 'border:10px solid #884400'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"border","v":
+		{"t":0,"d":1000,"e":"sine.io","p":"border","v":
 			[
 				[1,9,"","px"],
 				[255,-119,"solid #",""],
@@ -197,7 +211,7 @@ test(
 test(
 	['transform:scaleY(0.5) skew(-20deg,-20deg) rotate(0deg)', 'transform:scaleY(1.2) skew(40deg,-20deg) rotate(360deg)'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"transform","v":
+		{"t":0,"d":1000,"e":"sine.io","p":"transform","v":
 			[
 				[0.5,0.7,"scaleY(",")"],
 				[-20,60,"skew(","deg,-20deg)"],
@@ -209,7 +223,7 @@ test(
 test(
 	['margin: 0px 0px 50px 40px', 'margin:20px 30px 40px 50px'],
 	[
-		{"t":0,"d":1000,"e":"sine.inout","p":"margin","v":
+		{"t":0,"d":1000,"e":"sine.io","p":"margin","v":
 			[
 				[0,20,"","px"],
 				[0,30,"","px"],
@@ -220,40 +234,40 @@ test(
 	]
 );
 test(
-	['top:0px', animini.bounce.out, 'top:100px', animini.bounce.in, 'top:0px'],
+	['top:0px', animini.bounce.o, 'top:100px', animini.bounce.i, 'top:0px'],
 	[
-		{"t":0,"d":1000,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
-		{"t":1000,"d":1000,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
+		{"t":0,"d":1000,"e":"bounce.o","p":"top","v":[[0,100,"","px"]]},
+		{"t":1000,"d":1000,"e":"bounce.i","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
-	['top:0px', animini.bounce.out, 1300, 'top:100px', animini.bounce.in, 700, 'top:0px'],
+	['top:0px', animini.expect.o, 1300, 'top:100px', animini.expect.i, 700, 'top:0px'],
 	[
-		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
-		{"t":1300,"d":700,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
+		{"t":0,"d":1300,"e":"expect.o","p":"top","v":[[0,100,"","px"]]},
+		{"t":1300,"d":700,"e":"expect.i","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
-	[900, 'top:0px', animini.bounce.out, 1300, 'top:100px', animini.bounce.in, 700, 'top:0px'],
+	[900, 'top:0px', animini.linear.o, 1300, 'top:100px', animini.linear.i, 700, 'top:0px'],
 	[
-		{"t":0,"d":585,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
-		{"t":585,"d":315,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
+		{"t":0,"d":585,"e":"linear.o","p":"top","v":[[0,100,"","px"]]},
+		{"t":585,"d":315,"e":"linear.i","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
-	['top:0px', animini.bounce.out, 1300, 'top:100px', 250, 'top:100px', animini.bounce.in, 700, 'top:0px'],
+	['top:0px', animini.quad.o, 1300, 'top:100px', 250, 'top:100px', animini.quad.i, 700, 'top:0px'],
 	[
-		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
+		{"t":0,"d":1300,"e":"quad.o","p":"top","v":[[0,100,"","px"]]},
 		{"t":1300,"d":250,"p":"top","v":"100px"},
-		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]}
+		{"t":1550,"d":700,"e":"quad.i","p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
-	['top:0px', animini.bounce.out, 1300, 'top:100px', 250, 'top:100px', animini.bounce.in, 700, 'top:0px', 250],
+	['top:0px', animini.circ.o, 1300, 'top:100px', 250, 'top:100px', animini.circ.i, 700, 'top:0px', 250],
 	[
-		{"t":0,"d":1300,"e":"bounce.out","p":"top","v":[[0,100,"","px"]]},
+		{"t":0,"d":1300,"e":"circ.o","p":"top","v":[[0,100,"","px"]]},
 		{"t":1300,"d":250,"p":"top","v":"100px"},
-		{"t":1550,"d":700,"e":"bounce.in","p":"top","v":[[100,-100,"","px"]]},
+		{"t":1550,"d":700,"e":"circ.i","p":"top","v":[[100,-100,"","px"]]},
 		{"t":2500,"d":0}
 	]
 );

@@ -5,19 +5,43 @@
 	</head>
 	<body>
 
-		<!--[if lt IE 9]>
-			<h3>Sorry, but this demo requires IE9+</h3>
-		<![endif]-->
+		<script>
+
+// CSS3 transform (2D) is still experimental, although all modern browsers support it:
+// IE 9, FF 3.5, Chrome 4.0, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, Opera 10.5, Opera Mobile 11.0
+// However, we need to add a browser-specific prefix for this property to work.
+function getTransformPrefix() {
+	// returns a string that should be prefixed before 'transform'
+	// returns undefined if browser does not support 'transform' css style
+
+	var m = /\bmsie.(\d+\.\d+)/i.exec(navigator.userAgent);
+	if (m && parseFloat(m[1]) < 9) return;
+	
+	if (!window.getComputedStyle) return '';
+	
+	var o = document.body.firstElementChild;
+	if (!o) return '';
+	var s = window.getComputedStyle(o, null);
+	if (s.transform != undefined) return '';
+	if (s.WebkitTransform != undefined) return '-webkit-';
+	if (s.MozTransform != undefined) return '-moz-';
+	if (s.OTransform != undefined) return '-o-';
+	if (s.MsTransform != undefined) return '-ms-';
+}
+
+var prefix = getTransformPrefix();
+
+if (prefix == undefined) {
+	document.write('<h3>It seems your browser does not support the new CSS3 transform style. Sorry.</h3>');
+	document.write('Please try one of the following:<ul>');
+	var a = 'IE 9, Firefox 3.5, Chrome 4.0, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, Opera 10.5, Opera Mobile 11.0'.split(/, /g);
+	for (var i = 0; i < a.length; ++i) document.write('<li>' + a[i] + '+</li>');
+	document.write('</ul>');
+}
+		</script>
+		
 		<div id="myDiv" style="position:absolute; left:50px; top:50px; width:150px; height:150px;">
 			<script>
-
-// css3 transform is still experimental, although all modern browsers support it.
-// so we need to establish the browser-specific prefix for this property.
-function detect(vals, def) {
-	for (var s in vals) if (new RegExp(s, 'i').test(navigator.userAgent)) return vals[s];
-	return def;
-}
-var prefix = detect({webkit:'-webkit-', firefox:'-moz-', opera:'-o-', msie:'-ms-'}, '');
 
 // create the clock
 function createNumber(num) {
@@ -25,7 +49,7 @@ function createNumber(num) {
 	document.write('<div style="position:absolute; width:150px; height:150px; text-align:center; '+prefix+'transform:rotate(' + d + 'deg);">' + num + '</div>');
 }
 
-for (var i = 1; i <= 12; ++i) createNumber(i);
+if (prefix != undefined) for (var i = 1; i <= 12; ++i) createNumber(i);
 
 			</script>
 		
@@ -40,7 +64,7 @@ var s2 = prefix + 'transform:scaleY(0.7) skew(40deg,-20deg) rotate(360deg); colo
 var e = animini.cubic.inout;
 var animation = animini(s1, 3000, e, s2, 250, s2, 3000, e, s1, 250);
 
-animation('myDiv');
+if (prefix != undefined) animation('myDiv');
 
 	</script>
 </html>

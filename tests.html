@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<title>Animini Tests</title>
-		<script src="animini.min.js"></script>
+		<script src="animini.js"></script>
 		<!--[if lt IE 8]>
 			<script>
 
@@ -34,12 +34,13 @@ a,j,p={"\u0008":"\\b","\t":"\\t","\n":"\\n","\u000c":"\\f","\r":"\\r",'"':'\\"',
 
 var tested = 0, failed = 0;
 
+function easingStringifier(key, value) { return typeof(value) == 'function' && value._easing || value; }
+
 function test(args, expected) {
 	var animation = animini.apply(null, args);
-	for (var a = animation.stages, i = a && a.length - 1; i >= 0; --i) a[i].e = a[i].e && a[i].e._easing;
-	var result = JSON.stringify(a);
-	expected = JSON.stringify(expected);
-	var success = result == expected;
+	var actual = JSON.stringify(animation.stages, easingStringifier);
+	expected = JSON.stringify(expected, easingStringifier);
+	var success = actual == expected;
 	var mark = success ? '<span style="color:#008000">\u2714</span>' : '<span style="color:#ff0000">\u2718</span>';
 	var tr = document.getElementById('table').appendChild(document.createElement('tr'));
 	tr.appendChild(document.createElement('TD')).innerHTML = ++tested;
@@ -48,10 +49,10 @@ function test(args, expected) {
 	function add(p, caption, value) {
 		p.appendChild(document.createElement('DIV')).innerHTML = '<span class="caption">'+caption+':</span>'+value;
 	}
-	add(td, 'Testing', JSON.stringify(args));
+	add(td, 'Testing', JSON.stringify(args, easingStringifier));
 	if (!success) {
 		add(td, 'Expected', expected);
-		add(td, 'Actual', result);
+		add(td, 'Actual', actual);
 		++failed;
 	}
 }
@@ -116,50 +117,50 @@ test(
 );
 test(
 	['top:100px', 'top:200px'],
-	[{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}]
+	[{"t":0,"d":1000,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	[' top   :	100px ', ' ; ;top\r\n:\r\n200px ; \n;  '],
-	[{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}]
+	[{"t":0,"d":1000,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	['top:100px', 'top:200px', 'top:250px'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
-		{"t":1000,"d":1000,"e":"sine.io","p":"top","v":[[200,50,"","px"]]}
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]},
+		{"t":1000,"d":1000,"e":animini.sine.io,"p":"top","v":[[200,50,"","px"]]}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'marginTop:40px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"marginTop","v":[[20,20,"","px"]]},
-		{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'marginTop:40px; left:50px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"marginTop","v":[[20,20,"","px"]]},
-		{"t":0,"d":1000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]},
 		{"t":1000,"d":0,"p":"left","v":"50px"}
 	]
 );
 test(
 	['top:100px; margin-top:20px', 'left:50px; marginTop:40px', 'left:120px; top:200px'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"marginTop","v":[[20,20,"","px"]]},
-		{"t":0,"d":2000,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
-		{"t":1000,"d":1000,"e":"sine.io","p":"left","v":[[50,70,"","px"]]}
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"marginTop","v":[[20,20,"","px"]]},
+		{"t":0,"d":2000,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]},
+		{"t":1000,"d":1000,"e":animini.sine.io,"p":"left","v":[[50,70,"","px"]]}
 	]
 );
 test(
 	['top:100px', 300, 'top:200px'],
-	[{"t":0,"d":300,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}]
+	[{"t":0,"d":300,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]}]
 );
 test(
 	['top:100px', 300, 200, 'top:200px'],
 	[
-		{"t":0,"d":500,"e":"sine.io","p":"top","v":[[100,100,"","px"]]},
+		{"t":0,"d":500,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]},
 		{"t":300,"d":0}
 	]
 );
@@ -167,20 +168,20 @@ test(
 	['top:100px', 300, 'top:100px', 200, 'top:200px'],
 	[
 		{"t":0,"d":300,"p":"top","v":"100px"},
-		{"t":300,"d":200,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}
+		{"t":300,"d":200,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	[400, 'top:100px', 300, 'top:100px', 200, 'top:200px'],
 	[
 		{"t":0,"d":240,"p":"top","v":"100px"},
-		{"t":240,"d":160,"e":"sine.io","p":"top","v":[[100,100,"","px"]]}
+		{"t":240,"d":160,"e":animini.sine.io,"p":"top","v":[[100,100,"","px"]]}
 	]
 );
 test(
 	['color:#ff0000', 'color:#880044'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"color","v":
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"color","v":
 			[
 				[255,-119,"#",""],
 				[0,68,"00",""]
@@ -191,7 +192,7 @@ test(
 test(
 	['color:#f00', 'color:#840'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"color","v":
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"color","v":
 			[
 				[255,-119,"#",""],
 				[0,68,"","00"]
@@ -202,7 +203,7 @@ test(
 test(
 	['border:1px solid #f00', 'border:10px solid #884400'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"border","v":
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"border","v":
 			[
 				[1,9,"","px"],
 				[255,-119,"solid #",""],
@@ -214,7 +215,7 @@ test(
 test(
 	['transform:scaleY(0.5) skew(-20deg,-20deg) rotate(0deg)', 'transform:scaleY(1.2) skew(40deg,-20deg) rotate(360deg)'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"transform","v":
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"transform","v":
 			[
 				[0.5,0.7,"scaleY(",")"],
 				[-20,60,"skew(","deg,-20deg)"],
@@ -226,7 +227,7 @@ test(
 test(
 	['margin: 0px 0px 50px 40px', 'margin:20px 30px 40px 50px'],
 	[
-		{"t":0,"d":1000,"e":"sine.io","p":"margin","v":
+		{"t":0,"d":1000,"e":animini.sine.io,"p":"margin","v":
 			[
 				[0,20,"","px"],
 				[0,30,"","px"],
@@ -239,38 +240,38 @@ test(
 test(
 	['top:0px', animini.bounce.o, 'top:100px', animini.bounce.i, 'top:0px'],
 	[
-		{"t":0,"d":1000,"e":"bounce.o","p":"top","v":[[0,100,"","px"]]},
-		{"t":1000,"d":1000,"e":"bounce.i","p":"top","v":[[100,-100,"","px"]]}
+		{"t":0,"d":1000,"e":animini.bounce.o,"p":"top","v":[[0,100,"","px"]]},
+		{"t":1000,"d":1000,"e":animini.bounce.i,"p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	['top:0px', animini.expect.o, 1300, 'top:100px', animini.expect.i, 700, 'top:0px'],
 	[
-		{"t":0,"d":1300,"e":"expect.o","p":"top","v":[[0,100,"","px"]]},
-		{"t":1300,"d":700,"e":"expect.i","p":"top","v":[[100,-100,"","px"]]}
+		{"t":0,"d":1300,"e":animini.expect.o,"p":"top","v":[[0,100,"","px"]]},
+		{"t":1300,"d":700,"e":animini.expect.i,"p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	[900, 'top:0px', animini.linear.o, 1300, 'top:100px', animini.linear.i, 700, 'top:0px'],
 	[
-		{"t":0,"d":585,"e":"linear.o","p":"top","v":[[0,100,"","px"]]},
-		{"t":585,"d":315,"e":"linear.i","p":"top","v":[[100,-100,"","px"]]}
+		{"t":0,"d":585,"e":animini.linear.o,"p":"top","v":[[0,100,"","px"]]},
+		{"t":585,"d":315,"e":animini.linear.i,"p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	['top:0px', animini.quad.o, 1300, 'top:100px', 250, 'top:100px', animini.quad.i, 700, 'top:0px'],
 	[
-		{"t":0,"d":1300,"e":"quad.o","p":"top","v":[[0,100,"","px"]]},
+		{"t":0,"d":1300,"e":animini.quad.o,"p":"top","v":[[0,100,"","px"]]},
 		{"t":1300,"d":250,"p":"top","v":"100px"},
-		{"t":1550,"d":700,"e":"quad.i","p":"top","v":[[100,-100,"","px"]]}
+		{"t":1550,"d":700,"e":animini.quad.i,"p":"top","v":[[100,-100,"","px"]]}
 	]
 );
 test(
 	['top:0px', animini.circ.o, 1300, 'top:100px', 250, 'top:100px', animini.circ.i, 700, 'top:0px', 250],
 	[
-		{"t":0,"d":1300,"e":"circ.o","p":"top","v":[[0,100,"","px"]]},
+		{"t":0,"d":1300,"e":animini.circ.o,"p":"top","v":[[0,100,"","px"]]},
 		{"t":1300,"d":250,"p":"top","v":"100px"},
-		{"t":1550,"d":700,"e":"circ.i","p":"top","v":[[100,-100,"","px"]]},
+		{"t":1550,"d":700,"e":animini.circ.i,"p":"top","v":[[100,-100,"","px"]]},
 		{"t":2500,"d":0}
 	]
 );

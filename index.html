@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+        <style>
+        html{background-color:#FFFFFF;font-family:helvetica,arial,freesans,clean,sans-serif;font-size:13px;}
+        body{background-color:#F8F8F8;border:1px solid #E9E9E9;padding:9px;}
+        h1,h2,h3,h4,h5,h6{border:0;}
+        h1{font-size:170%;border-top:4px solid #aaa;padding-top:.5em;margin-top:1.5em;}
+        h1:first-child{margin-top:0;padding-top:.25em;border-top:none;}
+        h2{font-size:150%;margin-top:1.5em;border-top:4px solid #e0e0e0;padding-top:.5em;}
+        h3{margin-top:1em;}
+        p{margin:1em 0;line-height:1.5em;}
+        a.absent{color:#a00;}
+        ul{margin:1em 0 1em 2em;}
+        ol{margin:1em 0 1em 2em;}
+        ul li,ol li,{margin-top:.5em;margin-bottom:.5em;}
+        ul ul,ul ol,ol ol,ol ul,{margin-top:0;margin-bottom:0;}
+        blockquote{margin:1em 0;border-left:5px solid #ddd;padding-left:.6em;color:#555;}
+        dt{font-weight:bold;margin-left:1em;}
+        dd{margin-left:2em;margin-bottom:1em;}
+        table{margin:1em 0;}
+        table th{border-bottom:1px solid #bbb;padding:.2em 1em;}
+        table td{border-bottom:1px solid #ddd;padding:.2em 1em;}
+        pre{margin:1em 0;font-size:12px;background-color:#eee;border:1px solid #ddd;padding:5px;line-height:1.5em;color:#444;overflow:auto;-webkit-box-shadow:rgba(0,0,0,0.07) 0 1px 2px inset;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
+        pre::-webkit-scrollbar{height:8px;width:8px;}
+        pre::-webkit-scrollbar-track-piece{margin-bottom:10px;background-color:#e5e5e5;border-bottom-left-radius:4px 4px;border-bottom-right-radius:4px 4px;border-top-left-radius:4px 4px;border-top-right-radius:4px 4px;}
+        pre::-webkit-scrollbar-thumb:vertical{height:25px;background-color:#ccc;-webkit-border-radius:4px;-webkit-box-shadow:0 1px 1px rgba(255,255,255,1);}
+        pre::-webkit-scrollbar-thumb:horizontal{width:25px;background-color:#ccc;-webkit-border-radius:4px;}
+        pre code{padding:0;font-size:12px;background-color:#eee;border:none;}
+        code{font-size:12px;background-color:#f8f8ff;color:#444;padding:0 .2em;border:1px solid #dedede;}
+        a code,a:link code,a:visited code{color:#4183c4;}
+        img{max-width:100%;}
+        </style>
+        </head>
+        <body><h1>Animini Features</h1>
+
+<ul>
+<li>Very lightweight and small - less than 5K minified.</li>
+<li>Automatically create a tween animation between several styles.</li>
+<li>Easing functions (a.k.a. interpoletors): Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce. <br />
+Each easing function has its own versions of easing-in, easing-out, and easing-in-out.</li>
+<li>Cross browser compatibility.</li>
+<li>No external dependencies on other libraries.</li>
+</ul>
+
+<h1>Usage Example</h1>
+
+<pre><code>animini('myDiv', 'top:100px; color:#008C00', 1000, 'top:200px; color:#ff0000');
+</code></pre>
+
+<h1>Documentation</h1>
+
+<h2>The animini() factory method</h2>
+
+<p>Use this method to create a tween animation between several styles. The styles can be written in the css notation (e.g., <code>margin-top</code>) or the property notation (e.g., <code>marginTop</code>). You can have as many style properties as you like, and the order of these properties is not important.</p>
+
+<p>Arguments can be supplied in any order, and each argument can be supplied more than once:</p>
+
+<ul>
+<li><p><em>element</em> - an HTML DOM element that should be animated. It can either be the element ID or the element itself (e.g., <code>"myDiv"</code>).  </p></li>
+<li><p><em>milliseconds</em> - the total duration of the animation, including all transitions. This is an optional argument, but if specified it needs to be before the first style argument. If unspecified, the animation will use the total sum of the durations of all the transitions.  </p></li>
+<li><p><em>style</em> - a CSS style (e.g., <code>'top: 10ex; color: #FD0; opacity: 0.75'</code>). The animation will transition from the first style specified to the second, and then to the third, and so forth. There must be at least two style arguments in an animation. </p></li>
+<li><p><em>duration</em> - the duration of a transition. This is an optional argument between a couple of style arguments (e.g., '<code>"top:30px", 500, "top:70px"</code> will cause the transition to take 500 milliseconds). The default transition duration is 1000 milliseconds.  </p></li>
+<li><p><em>easingFunc</em> - the easing function that should be used in a transition. This is an optional argument between a couple of style arguments (e.g., '<code>"top:30px", animini.bounce.o, "top:70px"</code> will cause the transition to use the bounce-out easing function). Defaults to <code>animini.sine.io</code>. See the list of animini's <a href="#easing">easing functions</a> below.  </p></li>
+<li><p><em>callback</em> - an optional callback function that should be invoked when the animation ends. The callback's arguments are the elements on which the animation occured (this enables infinite loop animations by giving the animation itself as a callback; see example below).</p></li>
+</ul>
+
+<p>The <code>animini()</code> factory method returns an animation function. If the animation has enough parameters to run, then it will automatically start. Otherwise, it will wait for further arguments to be supplied. For example:</p>
+
+<pre><code>var animation = animini('left:20px');         // not enough arguments to run: needs a finish style
+animation(300, animini.quad.o, 'left:50px');  // still not enough arguments: needs an element
+animation(300, animini.quad.i, 'left:20px');  // still not enough; still no element
+animation('myFirstElement');                  // now the animation has enough arguments, so it will start
+animation('mySecondElement');                 // run the same animation on element with ID 'mySecondElement'
+</code></pre>
+
+<h2>Animating several style properties in parallel</h2>
+
+<p>To animate several properties in parallel, simply specify them together:</p>
+
+<pre><code>animini('myDiv', 'color:#ff0020; margin:20px 20px 0px 0px', 'margin:0px 0px 20px 20px; color:#880088');
+</code></pre>
+
+<h2>Adding pauses to an animation</h2>
+
+<p>To add pauses inside an animation, add a transition without changing the style:</p>
+
+<pre><code>// create an animation that fades in for a quarter of a second, waits half a second, and then fades out again
+var transparent = 'opacity:0';
+var opaque = 'opacity:1';
+var fadeInOut = animini(transparent, 250, opaque, 500, opaque, 250, transparent);
+
+// activate the animation
+fadeInOut('myElement');
+</code></pre>
+
+<h2>Using callbacks</h2>
+
+<p>To have a function be called upon the animation end, simply add it as an argument:</p>
+
+<pre><code>function myCallback(elem) {
+    // do something
+}
+
+// create the animation
+var animation = animini('top:-2em', 'top:0em', myCallback);
+
+// activate the animation
+animation('myDiv'); // myCallback will be called with the element 'myDiv' once the animation is finished
+
+// you can also create an inifinitly looping animation by supplying the animation itself as a callback function
+animation('myDiv', animation);
+</code></pre>
+
+<p>Note that you can add multiple callbacks. All of them will be called when the animation ends.</p>
+
+<p><a name="easing"></p>
+
+<h2>Easing functions</h2>
+
+<p></a></p>
+
+<p>The animini library includes the following easing types:</p>
+
+<ul>
+<li><code>animini.linear</code> - linear easing: <code>y = x</code></li>
+<li><code>animini.quad</code> - quadratic easing: <code>y = pow(x, 2)</code></li>
+<li><code>animini.cubic</code> - cubic easing: <code>y = pow(x, 3)</code></li>
+<li><code>animini.quart</code> - quartic easing: <code>y = pow(x, 4)</code></li>
+<li><code>animini.sine</code> - sinosuidal easing: <code>y = -cos(x * PI/2)</code></li>
+<li><code>animini.expo</code> - exponential easing: <code>y = pow(2, 10*(x-1))</code></li>
+<li><code>animini.circ</code> - circular easing: <code>y = 1 - sqrt(1 - pow(x, 2))</code></li>
+<li><code>animini.elastic</code> - elastic easing: <code>y = -(4/3 * pow(2, 10*(x-1)) * sin((x - 2*PI*asin(3/4)/3) * 2*PI * 3))</code></li>
+<li><code>animini.expect</code> - expecting easing: <code>y = pow(x, 2) * (4*x - 3)</code></li>
+<li><code>animini.bounce</code> - bounce easing: a four part hyperbollic animation that produce a bouncing effect</li>
+</ul>
+
+<p>Each easing type includes a triplet of functions:</p>
+
+<ul>
+<li><code>i</code> - the easing in function</li>
+<li><code>o</code> - the easing out function</li>
+<li><code>io</code> - easing in till midway, and then easing out till the end</li>
+</ul>
+
+<p>So for example, the linear easing triplet <code>animini.expect</code> includes the functions <code>animini.expect.i</code>, <code>animini.expect.o</code> and <code>animini.expect.io</code>. The type itself is equivalent to the in-out function, so you can use <code>animini.expect</code> and <code>animini.expect.io</code> interchangeably. <br />
+See <a href="demo-easing.html">demo-easing.html</a> for a demonstration of all easing functions included in animini.</p>
+
+<h3>You can also create your own easing function</h3>
+
+<p>An easing function is any function that takes a single numeric argument and returns a numeric result. Both the argument and the return value should be between 0 and 1. Some easing function (for example <code>elastic</code>) return sometimes values below 0 or above 1, but this does not always make sense for all properties (for example for opacity). In any case, the easing function should return 0 for 0, and 1 for 1.</p>
+
+<p>Note that you must register an easing function before you can use it in animations:</p>
+
+<pre><code>function randomEasing(x) {
+    return x == 1 ? 1 : Math.random() * x;
+}
+
+// registering the new easing function
+animini.easing('random', randomEasing);
+
+// note that by registering the easing function, animini creates the easing triplet .i, .o and .io,
+// under the supplied name under animini (e.g., animini.random.io)
+
+// using the new easing function
+animini('myDiv', 'margin-top:50px', animini.random.io, 'margin-top:0px');
+</code></pre>
+
+<h1>License</h1>
+
+<p>Using or modifying this project is subject to the very permissive <a href="http://creativecommons.org/licenses/MIT/">MIT License</a>.</p>
+</body>
+        </html>

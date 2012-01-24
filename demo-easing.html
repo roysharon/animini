@@ -1,16 +1,21 @@
 <html>
 	<head>
-		<title>Animini demo</title>
-		<script src="animini.min.js"></script>
+		<title>Animini easing demo</title>
+		<script src="animini.js"></script>
 	</head>
 	<body>
 
+		<h1>Animini Easing Demo</h1>
+		
 		<div>
 			<b>Choose easing function:</b><br>
 			<table>
 				<tr>
 					<script>
-					
+
+// uncomment the following line to register a new easing function
+//animini.easing('random', function (x) { return x == 1 ? 1 : Math.random() * x; });
+						
 // display easing functions
 for (var i in animini) if (i != 'easing') {
 	document.write('<td style="padding-right:3ex;">');

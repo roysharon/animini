@@ -1,115 +1,134 @@
-# Features
+# Animini Features
 
 * Very lightweight and small - less than 5K minified.
-* Automatically create a tween animation between two styles.
-* Extensive easing functions (a.k.a. interpoletors) support: Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce.   
-Each easing function has its own versions of easing-in, easing-out, and easing-in-out.
-* Parallelizing or serializing animations.
+* Automatically create a tween animation between several styles.
+* Easing functions (a.k.a. interpoletors): Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce.   
+  Each easing function has its own versions of easing-in, easing-out, and easing-in-out.
 * Cross browser compatibility.
 * No external dependencies on other libraries.
 
 
 # Usage Example
 
-	var o = document.getElementById('myDiv');
-	
-	// animini.create(element, fromCssText, toCssText, millisec, easingFunc, onend)
-	var animateDown = animini.create(o, 'top:100px; color:#000000;', 'top:200px; color:#ff0000;', 1000, easingFunc);
-	var animateUp   = animini.create(o, 'top:200px; color:#ff0000;', 'top:100px; color:#000000;', 1000, easingFunc);
-	
-	// animini.Pause(millisec, onend)
-	var pause       = new animini.Pause(250);
-
-	// animini.Serial(onend)
-	var serial      = new animini.Serial();
-	serial.add(animateDown);
-	serial.add(pause);
-	serial.add(animateUp);
-	
-	serial.start();
+	animini('myDiv', 'top:100px; color:#008C00', 1000, 'top:200px; color:#ff0000');
 
 
 # Documentation
 
-## The animini.create() factory method
+## The animini() factory method
 
-	animini.create(element, fromStyle, toStyle, millisec, easingFunc, onend)
+Use this method to create a tween animation between several styles. The styles can be written in the css notation (e.g., `margin-top`) or the property notation (e.g., `marginTop`). You can have as many style properties as you like, and the order of these properties is not important.
 
-Use this method to automatically create a tween animation between two styles. The styles can be written in the css notation (e.g., `margin-top`) or the property notation (e.g., `marginTop`). You can have as many style properties as you like, and the order doesn't need to match between the fromStyle and the toStyle.
+Arguments can be supplied in any order, and each argument can be supplied more than once:
 
-Arguments:
+* *element* - an HTML DOM element that should be animated. It can either be the element ID or the element itself (e.g., `"myDiv"`).  
 
-* *element* - the HTML DOM element that should be animated. Stored in the `obj` property of the returned animation.
-* *fromStyle* - the 'before' style (e.g., `'top: 10ex; color: #FD0; opacity: 0.75'`).
-* *toStyle* - the 'after' style (e.g., `'top: 15ex; color: #D80; opacity: 0.9'`).
-* *millisec* - an optional duration of the animation. Defaults to `1000`. Stored in the `millisec` property of the returned animation.
-* *easingFunc* - an optional easing function that should be used. Defaults to `animini.easing.sine.inout`. Stored in the `easingFunc` property of the returned animation.
-* *onend* - an optional callback function that should be invoked when the animation ends. The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property of the returned animation.
+* *milliseconds* - the total duration of the animation, including all transitions. This is an optional argument, but if specified it needs to be before the first style argument. If unspecified, the animation will use the total sum of the durations of all the transitions.  
 
-Returns: An animation object. To run the animation, simply call the returned animation's `start()` method.
+* *style* - a CSS style (e.g., `'top: 10ex; color: #FD0; opacity: 0.75'`). The animation will transition from the first style specified to the second, and then to the third, and so forth. There must be at least two style arguments in an animation. 
 
-For example:
+* *duration* - the duration of a transition. This is an optional argument between a couple of style arguments (e.g., '`"top:30px", 500, "top:70px"` will cause the transition to take 500 milliseconds). The default transition duration is 1000 milliseconds.  
 
-	animini.create(document.getElementById('myElement'), 'left:20px', 'left:50px').start();
+* *easingFunc* - the easing function that should be used in a transition. This is an optional argument between a couple of style arguments (e.g., '`"top:30px", animini.bounce.o, "top:70px"` will cause the transition to use the bounce-out easing function). Defaults to `animini.sine.io`. See the list of animini's [easing functions](#easing) below.  
 
+* *callback* - an optional callback function that should be invoked when the animation ends. The callback's arguments are the elements on which the animation occured (this enables infinite loop animations by giving the animation itself as a callback; see example below).
 
-## The animini.Animation class
-The base animation class. It is abstract and should not be created directly. Use the `animini.create()` factory method instead, or create one of the derived classes (`Pause`, `Parallel` or `Serial`). However, it exposes the following methods and properties:
+The `animini()` factory method returns an animation function. If the animation has enough parameters to run, then it will automatically start. Otherwise, it will wait for further arguments to be supplied. For example:
 
-* `millisec` property - the duration of the animation. Defaults to 1000 (i.e., one second)
-* `easingFunc` property - the easing function that should be used. Defaults to `animini.easing.sine.inout`
-* `onend` property - the callback function that should be called once the animation ends naturally (i.e., not due to a call to `stop()`)
-* `start()` method - tells animini to start playing the animation
-* `stop()` method - tells animini to stop plaing the animation
-
-## The animini.Pause class
-Used for pausing for a specified amount of time (usually as a part of `animini.Serial` animation). It exposes the following methods and properties, in addition to those exposed by `animini.Animation`:
-
-* `animini.Pause(millisec, onend)` - the constructor. Use with `new` (see example above). The arguments:
-	* *millisec* - an optional duration of the pause. Defaults to `1000`. Stored in the `millisec` property.
-	* *onend* - an optional callback function that should be invoked when the pause ends. The callback will be called only if the pause ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
+	var animation = animini('left:20px');         // not enough arguments to run: needs a finish style
+	animation(300, animini.quad.o, 'left:50px');  // still not enough arguments: needs an element
+	animation(300, animini.quad.i, 'left:20px');  // still not enough; still no element
+	animation('myFirstElement');                  // now the animation has enough arguments, so it will start
+	animation('mySecondElement');                 // run the same animation on element with ID 'mySecondElement'
 
 
-## The animini.Parallel class
-Used to parallelize several animations. It exposes the following methods and properties, in addition to those exposed by `animini.Animation`:
+## Animating several style properties in parallel
 
-* `animini.Parallel(millisec, onend)` - the constructor. Use with `new` (see example above). The arguments:
-	* *millisec* - an optional duration of the parallelized animations (overrides these animations' `millisec` properties). Defaults to `1000`. Stored in the `millisec` property.
-	* *onend* - an optional callback function that should be invoked when the parallelized animations end (in addition to any callbacks specified in those animations). The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
-* `add(animation)` method - adds an animation to the parallelization list.
+To animate several properties in parallel, simply specify them together:
+
+	animini('myDiv', 'color:#ff0020; margin:20px 20px 0px 0px', 'margin:0px 0px 20px 20px; color:#880088');
 
 
-## The animini.Serial class
-Used to serlize several animations one after the other. It exposes the following methods and properties, in addition to those exposed by `animini.Animation`:
+## Adding pauses to an animation
 
-* `animini.Serial(onend)` - the constructor. Use with `new` (see example above). The arguments:
-	* *onend* - an optional callback function that should be invoked when the serlized animations end (in addition to any callbacks specified in those animations). The callback will be called only if the animation ends naturally, not due to a call to `stop()`. Stored in the `onend` property.
-* `add(animation)` method - adds an animation to the serialize queue.
+To add pauses inside an animation, add a transition without changing the style:
+
+	// create an animation that fades in for a quarter of a second, waits half a second, and then fades out again
+	var transparent = 'opacity:0';
+	var opaque = 'opacity:1';
+	var fadeInOut = animini(transparent, 250, opaque, 500, opaque, 250, transparent);
+	
+	// activate the animation
+	fadeInOut('myElement');
 
 
-## The animini.easing functions
-An easing function is any function that takes a single numeric argument and returns a numeric result. Both the argument and the return value should be between 0 and 1. Some easing function (for example `elastic`) return sometimes values below 0 or above 1, but this does not always make sense for all properties (for example for opacity). In any case, the easing function should return 0 for 0, and 1 for 1.
+## Using callbacks
+
+To have a function be called upon the animation end, simply add it as an argument:
+
+	function myCallback(elem) {
+		// do something
+	}
+	
+	// create the animation
+	var animation = animini('top:-2em', 'top:0em', myCallback);
+
+	// activate the animation
+	animation('myDiv'); // myCallback will be called with the element 'myDiv' once the animation is finished
+
+	// you can also create an inifinitly looping animation by supplying the animation itself as a callback function
+	animation('myDiv', animation);
+
+Note that you can add multiple callbacks. All of them will be called when the animation ends.
+
+
+<a name="easing">
+## Easing functions
+</a>
+
+The animini library includes the following easing types:
+
+* `animini.linear` - linear easing: `y = x`
+* `animini.quad` - quadratic easing: `y = pow(x, 2)`
+* `animini.cubic` - cubic easing: `y = pow(x, 3)`
+* `animini.quart` - quartic easing: `y = pow(x, 4)`
+* `animini.sine` - sinosuidal easing: `y = -cos(x * PI/2)`
+* `animini.expo` - exponential easing: `y = pow(2, 10*(x-1))`
+* `animini.circ` - circular easing: `y = 1 - sqrt(1 - pow(x, 2))`
+* `animini.elastic` - elastic easing: `y = -(4/3 * pow(2, 10*(x-1)) * sin((x - 2*PI*asin(3/4)/3) * 2*PI * 3))`
+* `animini.expect` - expecting easing: `y = pow(x, 2) * (4*x - 3)`
+* `animini.bounce` - bounce easing: a four part hyperbollic animation that produce a bouncing effect
+
 
 Each easing type includes a triplet of functions:
 
-* `in` - the easing in function
-* `out` - the easing out function
-* `inout` - easing in till midway, and then easing out till the end
+* `i` - the easing in function
+* `o` - the easing out function
+* `io` - easing in till midway, and then easing out till the end
 
-So for example, the linear easing triplet `animini.easing.linear` includes the functions `animini.easing.linear.in`, `animini.easing.linear.out` and `animini.easing.linear.inout`.
+So for example, the linear easing triplet `animini.expect` includes the functions `animini.expect.i`, `animini.expect.o` and `animini.expect.io`. The type itself is equivalent to the in-out function, so you can use `animini.expect` and `animini.expect.io` interchangeably.  
+See demo-easing.html for a demonstration of all easing functions included in animini.
 
-The animini library includes the following easing function triplets:
 
-* `animini.easing.linear` - linear easing: `y = x`
-* `animini.easing.quad` - quadratic easing: `y = pow(x, 2)`
-* `animini.easing.cubic` - cubic easing: `y = pow(x, 3)`
-* `animini.easing.quart` - quartic easing: `y = pow(x, 4)`
-* `animini.easing.sine` - sinosuidal easing: `y = -cos(x * PI/2)`
-* `animini.easing.expo` - exponential easing: `y = pow(2, 10*(x-1))`
-* `animini.easing.circ` - circular easing: `y = 1 - sqrt(1 - pow(x, 2))`
-* `animini.easing.elastic` - elastic easing: `y = -(4/3 * pow(2, 10*(x-1)) * sin((x - 2*PI*asin(3/4)/3) * 2*PI * 3))`
-* `animini.easing.expect` - expecting easing: `y = pow(x, 2) * (4*x - 3)`
-* `animini.easing.bounce` - bounce easing: a four part hyperbollic animation that produce a bouncing effect
+### You can also create your own easing function
+
+An easing function is any function that takes a single numeric argument and returns a numeric result. Both the argument and the return value should be between 0 and 1. Some easing function (for example `elastic`) return sometimes values below 0 or above 1, but this does not always make sense for all properties (for example for opacity). In any case, the easing function should return 0 for 0, and 1 for 1.
+
+Note that you must register an easing function before you can use it in animations:
+
+	function randomEasing(x) {
+		return x == 1 ? 1 : Math.random() * x;
+	}
+	
+	// registering the new easing function
+	animini.easing('random', randomEasing);
+	
+	// note that by registering the easing function, animini creates the easing triplet .i, .o and .io,
+	// under the supplied name under animini (e.g., animini.random.io)
+	
+	// using the new easing function
+	animini('myDiv', 'margin-top:50px', animini.random.io, 'margin-top:0px');
+
 
 # License
 Using or modifying this project is subject to the very permissive [MIT License](http://creativecommons.org/licenses/MIT/).

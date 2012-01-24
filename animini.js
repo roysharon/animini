@@ -17,11 +17,12 @@
 
 	function inout(f, n) { return markAsEasing(function (pos) { return pos < 0.5 ? f(pos * 2) / 2 : (1 - f(2 - pos * 2) / 2); }, n, 'io'); }
 
-	function easing(easeInFunc, name) {
+	function easing(name, easeInFunc) {
 		var f = inout(easeInFunc, name);
 		f['i'] = markAsEasing(easeInFunc, name, 'i');
 		f['o'] = out(easeInFunc, name);
 		f['io'] = inout(easeInFunc, name);
+		if (name != undefined) create[name] = f;
 		return f;
 	}
 	
@@ -46,8 +47,8 @@
 		}
 	};
 	
-	function setupEasingFuncs(o) {
-		for (var i in easingFuncs) o[i] = easing(easingFuncs[i], i);
+	function setupEasingFuncs() {
+		for (var i in easingFuncs) easing(i, easingFuncs[i]);
 	}
 
 
@@ -335,7 +336,7 @@
 	}
 	
 	create['easing'] = easing;
-	setupEasingFuncs(create);
+	setupEasingFuncs();
 	var defaultEasing = create['sine']['io'];
 
 	window['animini'] = create;

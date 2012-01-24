@@ -19,24 +19,24 @@ function getTransform(optionalValue) {
 	if (!r) {
 		var m = /\bmsie.(\d+\.\d+)/i.exec(navigator.userAgent);
 		if (!m || parseFloat(m[1]) >= 9) {
-			r = 'transform';
+			var v = 'transform';
 			if (window.getComputedStyle) {
 				var o = document.body;
 				if (o) {
 					var s = window.getComputedStyle(o, null);
 					if (s.transform == undefined) {
-						if (s.WebkitTransform != undefined) r = '-webkit-' + r;
-						else if (s.MozTransform != undefined) r = '-moz-' + r;
-						else if (s.OTransform != undefined) r = '-o-' + r;
-						else if (s.MsTransform != undefined) r = '-ms-' + r;
-						else r = undefined;
+						if (s.WebkitTransform != undefined) v = '-webkit-' + v;
+						else if (s.MozTransform != undefined) v = '-moz-' + v;
+						else if (s.OTransform != undefined) v = '-o-' + v;
+						else if (s.MsTransform != undefined) v = '-ms-' + v;
+						else v = undefined;
 					}
 				}
 			}
 		}
-		getTransform.cachedResult = {v:r};
-	} else r = r.v;
-	return r + (optionalValue ? ':' + optionalValue : '');
+		getTransform.cachedResult = r = {v:v};
+	}
+	return r.v && (r.v + (optionalValue ? ':' + optionalValue : ''));
 }
 
 if (getTransform()) {
@@ -59,6 +59,7 @@ if (getTransform()) {
 	animation('myDiv', animation);
 
 } else {
+	document.getElementById('myDiv').style.cssText = '';
 	document.write('<h3>It seems your browser does not support the new CSS3 transform style. Sorry.</h3>');
 	document.write('Please try this demo again with one of the following browsers:<ul>');
 	var a = 'Chrome 4.0, Firefox 3.5, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, IE 9, Opera 10.5, Opera Mobile 11.0'.split(/, /g);

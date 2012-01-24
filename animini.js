@@ -6,6 +6,10 @@
 
     'use strict';
 	
+	//----- Utilites ---------------------------------------------------------------
+	
+	var math = Math, max = math.max, min = math.min, pow = math.pow, PI = math.PI, round = math.round;
+	
 		
 	//----- Easing functions -------------------------------------------------------
 
@@ -26,23 +30,23 @@
 		return f;
 	}
 	
-	var elastAmp = 4 / 3, elastPeriod = 1 / 3, elastc = elastPeriod * 2 * Math.PI * Math.asin(1 / elastAmp);
+	var elastAmp = 4 / 3, elastPeriod = 1 / 3, elastc = elastPeriod * 2 * PI * Math.asin(1 / elastAmp);
 	
 	var easingFuncs = {
 		'linear' : function (pos) { return pos; },
-		'quad' : function (pos) { return Math.pow(pos, 2); },
-		'cubic' : function (pos) { return Math.pow(pos, 3); },
-		'quart' : function (pos) { return Math.pow(pos, 4); },
-		'sine' : function (pos) { return 1 - Math.cos(pos * Math.PI / 2); },
-		'expo' : function (pos) { return pos ? Math.pow(2, 10 * (pos - 1)) : 0; },
-		'circ' : function (pos) { return 1 - Math.sqrt(1 - Math.pow(pos, 2)); },
+		'quad' : function (pos) { return pow(pos, 2); },
+		'cubic' : function (pos) { return pow(pos, 3); },
+		'quart' : function (pos) { return pow(pos, 4); },
+		'sine' : function (pos) { return 1 - Math.cos(pos * PI / 2); },
+		'expo' : function (pos) { return pos ? pow(2, 10 * (pos - 1)) : 0; },
+		'circ' : function (pos) { return 1 - Math.sqrt(1 - pow(pos, 2)); },
 		'elastic' : function (pos) {
 			if (pos == 0 || pos == 1) return pos;
-			return -(elastAmp * Math.pow(2, 10 * (pos - 1)) * Math.sin((pos - elastc) * 2 * Math.PI / elastPeriod));
+			return -(elastAmp * pow(2, 10 * (pos - 1)) * Math.sin((pos - elastc) * 2 * PI / elastPeriod));
 		},
-		'expect' : function (pos) { return Math.pow(pos, 2) * (4 * pos - 3); },
+		'expect' : function (pos) { return pow(pos, 2) * (4 * pos - 3); },
 		'bounce' : function (pos) { 
-			var x = 1 - pos, f = function (a, b) { return 1 - 121/16 * Math.pow(x - a / 11, 2) - b; };
+			var x = 1 - pos, f = function (a, b) { return 1 - 121/16 * pow(x - a / 11, 2) - b; };
 			return x < 4/11 ? f(0, 0) : x < 8/11 ? f(6, 3/4) : x < 10/11 ? f(9, 15/16) : f(10.5, 63/64);
 		}
 	};
@@ -53,9 +57,13 @@
 
 
 	//----- Animation -------------------------------------------------------------
+
+	function dispatch(func, args) {
+		setTimeout(function () { func.apply(null, args); }, 1);
+	}
 	
 	function animate(elements, stages, callbacks) {
-		var stage = 0, count = stages.length, frame = 0, startTime = Date.now(), endTime = 0, active = [];
+		var stage = 0, count = stages.length, frame = 0, startTime = new Date() - 0, endTime = 0, active = [];
 
 		function applyOnElements(p, s) {
 			for (var j = elements.length - 1; j >= 0; --j) elements[j].style[p] = s;
@@ -83,10 +91,10 @@
 		}
 
 		function step() {
-			var t = Date.now(), d = t - startTime;
+			var t = new Date() - 0, d = t - startTime;
 			while (stage < count && stages[stage].t <= d) {
 				var s = stages[stage++];
-				endTime = Math.max(endTime, startTime + s.t + s.d);
+				endTime = max(endTime, startTime + s.t + s.d);
 				if (!s.v) continue;
 				if (s.v instanceof Array) active.push(stageFunc(s, t));
 				else applyOnElements(s.p, s.v);
@@ -95,10 +103,10 @@
 			for (i = finished.length - 1; i >= 0; --i) active.splice(finished[i], 1);
 
 			var next = active.length ? 10
-			         : stage < count ? Math.max(0, startTime + stages[stage].t - Date.now())
-			         :                 endTime - Date.now();
+			         : stage < count ? max(0, startTime + stages[stage].t - new Date())
+			         :                 endTime - new Date();
 			if (next >= 0) setTimeout(step, next);
-			else if (callbacks) for (i = 0; i < callbacks.length; ++i) setTimeout.apply(null, [callbacks[i], 1].concat(elements));
+			else if (callbacks) for (i = 0; i < callbacks.length; ++i) dispatch(callbacks[i], elements);
 		}
 		
 		step();
@@ -110,6 +118,18 @@
 	function compile(args, millisec) {
 		var props = {}, times = [], efuncs = [], count = 0, millis = null, efunc = null, dup;
 		
+		function splitValue(s) {
+			var r = [], i = 0, m;
+			valuesRE.lastIndex = 0;
+			while (m = valuesRE.exec(s)) {
+				r.push(s.substring(i, m.index));
+				i = m.index + m[0].length;
+				r.push(s.substring(m.index, i));
+			}
+			r.push(s.substring(i));
+			return r;
+		}
+		
 		function addStep(p) {
 			times.push(millis); millis = null;
 			efuncs.push(efunc || defaultEasing); efunc = null;
@@ -117,13 +137,13 @@
 			else if (dup == undefined) dup = p;
 			else if (dup) dup = false;
 			for (var k in props) if (p[k]) {
-				var a = props[k], l = a[a.length - 1], v = p[k].split(valuesRE), t = v.join(' ');
+				var a = props[k], l = a[a.length - 1], v = splitValue(p[k]), t = v.join('');
 				if (l.v.length != v.length) l.z = true;
 				props[k].push({v:v, t:t, i:count});
 				delete p[k];
 			}
 			for (k in p) {
-				var v = p[k].split(valuesRE);
+				var v = splitValue(p[k]);
 				props[k] = [{v:v, t:v.join(''), i:count}];
 			}
 			++count;
@@ -162,10 +182,10 @@
 			if (times[i] != undefined) m += times[i];
 			else if (i > 0) ++z;
 		}
-		if (z) var k = 1, d = millisec ? Math.max(0, Math.round((millisec - m) / z)) : 1000;
+		if (z) var k = 1, d = millisec ? max(0, round((millisec - m) / z)) : 1000;
 		else k = millisec ? millisec / m : 1, d = millisec || 1000;
 		for (var i = 0, starts = [0]; i < count; ++i) {
-			times[i] = times[i] == undefined ? i ? d : 0 : Math.round(k * times[i]);
+			times[i] = times[i] == undefined ? i ? d : 0 : round(k * times[i]);
 			starts.push(starts[i] + times[i]);
 		}
 		
@@ -209,7 +229,7 @@
 	}
 	
 	function colorComponentToString(v) {
-		var s = '0' + Math.round(v).toString(16);
+		var s = '0' + round(min(max(0, v), 255)).toString(16);
 		return s.substr(s.length - 2);
 	}
 	
@@ -318,7 +338,7 @@
 			
 				parseArg(varArg);
 				var stages = compile(args, millisec);
-				if (stages && elements.length) setTimeout(animate, 1, elements, stages, callbacks);
+				if (stages && elements.length) dispatch(animate, [elements, stages, callbacks]);
 				return stages;
 			}
 			

@@ -1,0 +1,74 @@
+<html>
+	<head>
+		<title>Animini Clock Demo</title>
+		<script src="animini.min.js"></script>
+	</head>
+	<body>
+
+		<h1>Animini Clock Demo</h1>
+		
+		<div id="myDiv" style="position:absolute; left:80px; top:80px; width:150px; height:150px;">
+			<script>
+
+// CSS3 transform (2D) is still experimental, although all modern browsers support it:
+// IE 9, FF 3.5, Chrome 4.0, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, Opera 10.5, Opera Mobile 11.0
+// However, to use it, one needs to add a browser-specific prefix. For example: -webkit-transform.
+// The following function determines the correct transform style property name:
+function getTransform(optionalValue) {
+	var r = getTransform.cachedResult;
+	if (!r) {
+		var m = /\bmsie.(\d+\.\d+)/i.exec(navigator.userAgent);
+		if (!m || parseFloat(m[1]) >= 9) {
+			r = 'transform';
+			if (window.getComputedStyle) {
+				var o = document.body;
+				if (o) {
+					var s = window.getComputedStyle(o, null);
+					if (s.transform == undefined) {
+						if (s.WebkitTransform != undefined) r = '-webkit-' + r;
+						else if (s.MozTransform != undefined) r = '-moz-' + r;
+						else if (s.OTransform != undefined) r = '-o-' + r;
+						else if (s.MsTransform != undefined) r = '-ms-' + r;
+						else r = undefined;
+					}
+				}
+			}
+		}
+		getTransform.cachedResult = {v:r};
+	} else r = r.v;
+	return r + (optionalValue ? ':' + optionalValue : '');
+}
+
+if (getTransform()) {
+
+	// create the clock's numbers
+	function createNumber(num) {
+		var d = Math.round((num % 12) * 30);
+		var t = getTransform('rotate(' + d + 'deg)');
+		document.write('<div style="position:absolute; width:150px; height:150px; text-align:center;' + t + '">' + num + '</div>');
+	}
+	for (var i = 1; i <= 12; ++i) createNumber(i);
+
+	// build the animation
+	var s1 = 'color:#ffce00;' + getTransform('scaleY(1.2) skew(-20deg, -20deg) rotate(  0deg)');
+	var s2 = 'color:#a28400;' + getTransform('scaleY(0.7) skew( 40deg, -20deg) rotate(360deg)');
+	var e = animini.cubic.inout;
+	var animation = animini(s1, 3000, e, s2, 250, s2, 3000, e, s1, 250);
+	
+	// run the animation
+	animation('myDiv', animation);
+
+} else {
+	document.write('<h3>It seems your browser does not support the new CSS3 transform style. Sorry.</h3>');
+	document.write('Please try this demo again with one of the following browsers:<ul>');
+	var a = 'Chrome 4.0, Firefox 3.5, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, IE 9, Opera 10.5, Opera Mobile 11.0'.split(/, /g);
+	for (var i = 0; i < a.length; ++i) document.write('<li>' + a[i] + '+</li>');
+	document.write('</ul>');
+}
+
+			</script>
+		
+		</div>
+
+	</body>
+</html>

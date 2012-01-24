@@ -74,7 +74,7 @@
 				var y = stage.e(stagePos);
 				for (var j = 0, s = [], a = stage.v, n = a.length; j < n; ++j) {
 					var c = a[j];
-					s.push(c[2] + c.to(y * c[1] + c[0]) + c[3]);
+					s.push(c[0] + c.to(c[1] + y * c[2]) + (c[3] || ''));
 				}
 				applyOnElements(stage.p, s.join(''));
 
@@ -117,14 +117,14 @@
 			else if (dup == undefined) dup = p;
 			else if (dup) dup = false;
 			for (var k in props) if (p[k]) {
-				var a = props[k], l = a[a.length - 1], v = p[k].split(whiteSpace), t = v.join(' ');
+				var a = props[k], l = a[a.length - 1], v = p[k].split(valuesRE), t = v.join(' ');
 				if (l.v.length != v.length) l.z = true;
 				props[k].push({v:v, t:t, i:count});
 				delete p[k];
 			}
 			for (k in p) {
-				var v = p[k].split(whiteSpace);
-				props[k] = [{v:v, t:v.join(' '), i:count}];
+				var v = p[k].split(valuesRE);
+				props[k] = [{v:v, t:v.join(''), i:count}];
 			}
 			++count;
 		}
@@ -213,67 +213,62 @@
 		return s.substr(s.length - 2);
 	}
 	
-	function appendVal(s, v) { return v ? (s ? s + ' ' : '') + v : s; }
-
 	var propTrimRE = /^(?:\s*;)*\s*|\s*(?:;\s*)*$/g;
 	var propSplitRE = /(?:\s*;)+\s*/g;
 	var propValRE = /\s*:\s*/;
 	var valRE = /^(.*?)(-?(?:\d+(?:\.\d*)?|\.\d+))(.*)$/;
-	var colorRE = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/ig;
-	var shortColorRE = /#([0-9a-f])([0-9a-f])([0-9a-f])\b/g;
-	var whiteSpace = /\s+/g;
+	var colorRE = /#[0-9a-f]{6}(?![0-9a-f])/ig;
+	var shortColorRE = /#([0-9a-f])([0-9a-f])([0-9a-f])(?![0-9a-f])/ig;
+	var valuesRE = /(-?(?:\d+(?:\.\d+)?|\.\d+)|#[0-9a-f]{6}(?![0-9a-f]))/ig;
 	
 	function toLower(s) { return s.toLowerCase(); }
 	
 	function parseCssText(s) {
 		for (var r = {}, a = (s || '').replace(propTrimRE, '').split(propSplitRE), i = a.length - 1; i >= 0; --i) {
 			var p = a[i].split(propValRE, 2);
-			if (p.length == 2 && p[1]) r[toCamelCase(p[0])] = p[1].replace(colorRE, toLower).replace(shortColorRE, '#$1$1$2$2$3$3');
+			if (p.length == 2 && p[1]) r[toCamelCase(p[0])] = p[1].replace(shortColorRE, '#$1$1$2$2$3$3').replace(colorRE, toLower);
 		}
 		return r;
 	}
 	
 	function parseAnimatedVals(fa, ta) {
-		var vals = [], last, prefix, postfix;
+		var vals = [], last, prefix;
 		
-		function addVal(prefix, postfix, start, end, to) {
-			vals.push(last = [start, end - start, prefix, postfix]);
+		function addVal(prefix, start, end, to) {
+			vals.push(last = [prefix, start, end - start]);
 			last.to = to;
 		} 
 				
 		function compareColorComponent(fi, ti, k) {
 			var fk = fi.substr(k, 2), tk = ti.substr(k, 2);
 			if (fk != tk) {
-				addVal(prefix, postfix, parseInt(fk, 16), parseInt(tk, 16), colorComponentToString);
-				prefix = postfix = '';
+				addVal(prefix, parseInt(fk, 16), parseInt(tk, 16), colorComponentToString);
+				prefix = '';
 			} else prefix += fk;
 		}
 		
-		for (var i = 0, n = fa.length, b = 0; i < n; ++i) {
+		for (var i = 1, n = fa.length, b = 0; i < n; i += 2) {
 			var fi = fa[i], ti = ta[i];
 			if (fi == ti) continue;
-			prefix = fa.slice(b, i > 0 ? i : 0).join(' ');
-			postfix = '';
+			prefix = fa.slice(b, i > 0 ? i : 0).join('');
 			if (/^#/.test(fi)) {
-				prefix = appendVal(prefix, '#');
+				prefix += '#';
 				compareColorComponent(fi, ti, 1);
 				compareColorComponent(fi, ti, 3);
 				compareColorComponent(fi, ti, 5);
 				
 				if (prefix) last[3] = prefix;
 			} else {
-				var fm = valRE.exec(fi), tm = valRE.exec(ti);
-				if (!fm || !tm) continue;
-
-				var fk = parseFloat(fm[2]), tk = parseFloat(tm[2]);
+				var fk = parseFloat(fi), tk = parseFloat(ti);
 				if (fk == tk) continue;
 				
-				addVal(appendVal(prefix, fm[1]), fm[3], fk, tk, numToString);
+				addVal(prefix, fk, tk, numToString);
 			}
 			b = i + 1;
 		}
-		if (!last) return fa.join(' ');
-		last[3] = appendVal(last[3], fa.slice(b).join(' '));
+		if (!last) return fa.join('');
+		var postfix = (last[3] || '') + fa.slice(b).join('');
+		if (postfix) last[3] = postfix;
 		return vals;
 	}
 	

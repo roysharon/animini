@@ -30,19 +30,19 @@
 		return f;
 	}
 	
-	var elastAmp = 4 / 3, elastPeriod = 1 / 3, elastc = elastPeriod * 2 * PI * Math.asin(1 / elastAmp);
+	var elastAmp = 4 / 3, elastPeriod = 1 / 3, elastc = elastPeriod * 2 * PI * math.asin(1 / elastAmp);
 	
 	var easingFuncs = {
 		'linear' : function (pos) { return pos; },
 		'quad' : function (pos) { return pow(pos, 2); },
 		'cubic' : function (pos) { return pow(pos, 3); },
 		'quart' : function (pos) { return pow(pos, 4); },
-		'sine' : function (pos) { return 1 - Math.cos(pos * PI / 2); },
+		'sine' : function (pos) { return 1 - math.cos(pos * PI / 2); },
 		'expo' : function (pos) { return pos ? pow(2, 10 * (pos - 1)) : 0; },
-		'circ' : function (pos) { return 1 - Math.sqrt(1 - pow(pos, 2)); },
+		'circ' : function (pos) { return 1 - math.sqrt(1 - pow(pos, 2)); },
 		'elastic' : function (pos) {
 			if (pos == 0 || pos == 1) return pos;
-			return -(elastAmp * pow(2, 10 * (pos - 1)) * Math.sin((pos - elastc) * 2 * PI / elastPeriod));
+			return -(elastAmp * pow(2, 10 * (pos - 1)) * math.sin((pos - elastc) * 2 * PI / elastPeriod));
 		},
 		'expect' : function (pos) { return pow(pos, 2) * (4 * pos - 3); },
 		'bounce' : function (pos) { 

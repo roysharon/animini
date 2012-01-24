@@ -33,8 +33,8 @@ var prefix = getTransformPrefix();
 
 if (prefix == undefined) {
 	document.write('<h3>It seems your browser does not support the new CSS3 transform style. Sorry.</h3>');
-	document.write('Please try one of the following:<ul>');
-	var a = 'IE 9, Firefox 3.5, Chrome 4.0, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, Opera 10.5, Opera Mobile 11.0'.split(/, /g);
+	document.write('Please try this demo again with one of the following browsers:<ul>');
+	var a = 'Chrome 4.0, Firefox 3.5, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, IE 9, Opera 10.5, Opera Mobile 11.0'.split(/, /g);
 	for (var i = 0; i < a.length; ++i) document.write('<li>' + a[i] + '+</li>');
 	document.write('</ul>');
 }
@@ -64,7 +64,7 @@ var s2 = prefix + 'transform:scaleY(0.7) skew(40deg,-20deg) rotate(360deg); colo
 var e = animini.cubic.inout;
 var animation = animini(s1, 3000, e, s2, 250, s2, 3000, e, s1, 250);
 
-if (prefix != undefined) animation('myDiv');
+if (prefix != undefined) animation('myDiv', animation);
 
 	</script>
 </html>

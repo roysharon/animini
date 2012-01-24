@@ -9,7 +9,9 @@
 		
 	//----- Easing functions -------------------------------------------------------
 
-	function markAsEasing(f, n, t) { f.isEasing = n + '.' + t; return f; }
+	var easingNameProp = '_easing';
+	
+	function markAsEasing(f, n, t) { f[easingNameProp] = n + '.' + t; return f; }
 
 	function out(f, n) { return markAsEasing(function (pos) { return 1 - f(1 - pos); }, n, 'o'); }
 
@@ -51,8 +53,8 @@
 
 	//----- Animation -------------------------------------------------------------
 	
-	function animate(elements, stages) {
-		var stage = 0, count = stages.length, frame = 0, startTime = new Date().getTime(), active = [], timeout;
+	function animate(elements, stages, callbacks) {
+		var stage = 0, count = stages.length, frame = 0, startTime = Date.now(), endTime = 0, active = [];
 
 		function applyOnElements(p, s) {
 			for (var j = elements.length - 1; j >= 0; --j) elements[j].style[p] = s;
@@ -80,20 +82,22 @@
 		}
 
 		function step() {
-			var t = new Date(), d = t - startTime;
+			var t = Date.now(), d = t - startTime;
 			while (stage < count && stages[stage].t <= d) {
 				var s = stages[stage++];
+				endTime = Math.max(endTime, startTime + s.t + s.d);
 				if (!s.v) continue;
 				if (s.v instanceof Array) active.push(stageFunc(s, t));
 				else applyOnElements(s.p, s.v);
 			}
 			for (var i = 0, n = active.length, finished = []; i < n; ++i) if (active[i](t)) finished.push(i);
-			for (i = finished.length - 1; i >= 0; --i) {
-				active.splice(finished[i], 1);
-				// TODO callbacks
-			}
-			if (active.length) timeout = window.setTimeout(step, 10);
-			else if (stage < count - 1) timeout = window.setTimeout(step, Math.max(0, startTime + stages[stage + 1].t - new Date()));
+			for (i = finished.length - 1; i >= 0; --i) active.splice(finished[i], 1);
+
+			var next = active.length ? 10
+			         : stage < count ? Math.max(0, startTime + stages[stage].t - Date.now())
+			         :                 endTime - Date.now();
+			if (next >= 0) setTimeout(step, next);
+			else if (callbacks) for (i = 0; i < callbacks.length; ++i) setTimeout.apply(null, [callbacks[i], 1].concat(elements));
 		}
 		
 		step();
@@ -103,13 +107,12 @@
 	//----- Animation Compiler ----------------------------------------------------
 	
 	function compile(args, millisec) {
-		var props = {}, times = [], efuncs = [], callbacks = [], count = 0, millis = null, efunc = null, cb = [], dup;
+		var props = {}, times = [], efuncs = [], count = 0, millis = null, efunc = null, dup;
 		
 		function addStep(p) {
 			times.push(millis); millis = null;
 			efuncs.push(efunc || defaultEasing); efunc = null;
-			callbacks.push(cb.length ? cb : undefined); cb = [];
-			if (!p) p = {__:'' + count};
+			if (!p) p = {'__':'' + count};
 			else if (dup == undefined) dup = p;
 			else if (dup) dup = false;
 			for (var k in props) if (p[k]) {
@@ -146,14 +149,9 @@
 						millis = v;
 					} else millis = v;
 					break;
-				
-				case 'c':
-					cb.push(v);
-					if (!millis) addStep();
-					break;
 			}
 		}
-		if (millis || cb.length) addStep(dup);
+		if (millis) addStep(dup);
 		else if (dup) addStep(dup);
 		
 		if (!count) return;
@@ -180,11 +178,11 @@
 					for (var j = bi + 1, m = 0; j <= ai; ++j) m += times[j];
 					var vals = before.z ? after.t : parseAnimatedVals(before.v, after.v);
 					var e = vals instanceof Array ? efuncs[ai] : undefined;
-					stages.push({t:starts[bi+1], d:m, c:callbacks[ai], e:e, p:k, v:vals});
+					stages.push({t:starts[bi+1], d:m, e:e, p:k, v:vals});
 				}
 			} else {
 				while (i >= 0) {
-					var state = a[i--], si = state.i, w = k == '__', s = {t:starts[si+1], d:0, c:callbacks[si]};
+					var state = a[i--], si = state.i, w = k == '__', s = {t:starts[si+1], d:0};
 					if (!w) { s.p = k; s.v = state.t; }
 					stages.push(s);
 				}
@@ -281,11 +279,10 @@
 	
 	//----- Animation Factory -----------------------------------------------------
 	
-	function parseFunc(args, millisec) {
-		args = args.concat();
-		var elements = [];
-		
-		return function () {
+	function create() {
+		var args = [], callbacks = [], millisec;
+		var animation = function () {
+			var elements = [];
 			
 			function parseAnimation(varArg) {
 				var notstart;
@@ -310,8 +307,10 @@
 							break;
 						
 						case 'function':
-							args.push({p:arg.isEasing ? 'e' : 'c', v:arg});
-							notstart = true;
+							if (arg[easingNameProp]) {
+								args.push({p:'e', v:arg});
+								notstart = true;
+							} else callbacks.push(arg);
 							break;
 					}
 				}
@@ -323,19 +322,16 @@
 			
 				parseArg(varArg);
 				var stages = compile(args, millisec);
-				if (stages && elements.length) animate(elements, stages);
+				if (stages && elements.length) setTimeout(animate, 1, elements, stages, callbacks);
 				return stages;
 			}
 			
 			var stages = parseAnimation(Array.prototype.slice.call(arguments, 0));
-			var r = parseFunc(args, millisec);
-			r['stages'] = stages;
-			return r;
+			animation['stages'] = stages;
+			return animation;
 		};
-	}
-
-	function create() {
-		return parseFunc([]).apply(null, arguments);
+		animation.apply(null, arguments);
+		return animation;
 	}
 	
 	create['easing'] = easing;

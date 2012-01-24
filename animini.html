@@ -34,12 +34,15 @@ for (var i in animini) if (i != 'easing') {
 	<script>
 
 var e = animini.bounce.o;
-
 var s1 = 'margin-top:0px;   color:#00aa00;';
 var s2 = 'margin-top:100px; color:#dd0000;';
-var animation = animini(s1, e, 1000, s2, 250, s2, e, 1000, s1, 250);
 
-animation('myDiv', animation);
+function animate() {
+	// recreate animation each cycle, so we can change the easing function
+	animini('myDiv', s1, e, 1000, s2, e, 1000, s1, animate);
+}
+
+animate();
 
 	</script>
 </html>

@@ -33,7 +33,7 @@ var tested = 0, failed = 0;
 
 function test(args, expected) {
 	var animation = animini.apply(null, args);
-	for (var a = animation.stages, i = a && a.length - 1; i >= 0; --i) a[i].e = a[i].e && a[i].e.isEasing;
+	for (var a = animation.stages, i = a && a.length - 1; i >= 0; --i) a[i].e = a[i].e && a[i].e._easing;
 	var result = JSON.stringify(a);
 	expected = JSON.stringify(expected);
 	var success = result == expected;

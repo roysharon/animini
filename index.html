@@ -64,7 +64,16 @@
 <li><p><em>callback</em> - an optional callback function that should be invoked when the animation ends. The callback's arguments are the elements on which the animation occured (this enables infinite loop animations by giving the animation itself as a callback; see <a href="#callbacks">example</a> below).</p></li>
 </ul>
 
-<p>The <code>animini()</code> factory method returns an animation function. If the animation has enough parameters to run, then it will automatically start. Otherwise, it will wait for further arguments to be supplied. For example:</p>
+<h2>Animation functions</h2>
+
+<p>The <code>animini()</code> factory method returns an animation function. If the animation has enough parameters to run, then it will automatically start:</p>
+
+<pre><code>// calling animini with a couple of styles and an element ID is enough to get the animation started.
+// no need to use the returned animation function, because the animation is already running
+animini('margin:0px 0px 30px 30px', 'margin:30px 30px 0px 0px', 'myImg');
+</code></pre>
+
+<p>However, if the animation does not have enough parameters to run, it will wait for further arguments to be supplied:</p>
 
 <pre><code>var animation = animini('left:20px');         // not enough arguments to run: needs a finish style
 animation(300, animini.quad.o, 'left:50px');  // still not enough arguments: needs an element
@@ -72,6 +81,18 @@ animation(300, animini.quad.i, 'left:20px');  // still not enough; still no elem
 animation('myFirstElement');                  // now the animation has enough arguments, so it will start
 animation('mySecondElement');                 // run the same animation on element with ID 'mySecondElement'
 </code></pre>
+
+<h2>Reusing animation functions</h2>
+
+<p>An animation function keeps all of the animation information, except for the elements on which it should operate. This means that you can use the same animation for different elements:</p>
+
+<pre><code>var hoverIn  = animini('background-color:#fff; color:#00f', 300, 'background-color:#00f; color:#fff');
+var hoverOut = animini('background-color:#00f; color:#fff', 300, 'background-color:#fff; color:#00f');
+document.getElementById('mySpan').onmouseover = hoverIn;
+document.getElementById('mySpan').onmouseout  = hoverOut;
+</code></pre>
+
+<p>Notice that animation functions can also get the element to work on from the <code>this</code> value. This is what causing the animations above to run (the event handler is being called with <code>this</code> pointing at the DOM element on which the event was fired).</p>
 
 <h2>Animating several style properties in parallel</h2>
 

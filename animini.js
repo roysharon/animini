@@ -342,11 +342,13 @@
 				return stages;
 			}
 			
-			var stages = parseAnimation(Array.prototype.slice.call(arguments, 0));
+			var a = Array.prototype.slice.call(arguments, 0);
+			if (this && this.nodeType == 1) a.push(this);
+			var stages = parseAnimation(a);
 			animation['stages'] = stages;
 			return animation;
 		};
-		animation.apply(null, arguments);
+		animation.apply(this, arguments);
 		return animation;
 	}
 	

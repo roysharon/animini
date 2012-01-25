@@ -52,17 +52,17 @@ However, if the animation does not have enough parameters to run, it will wait f
 	animation('myFirstElement');                  // now the animation has enough arguments, so it will start
 	animation('mySecondElement');                 // run the same animation on element with ID 'mySecondElement'
 
+Notice the last line above: An animation function keeps all of the animation information, except for the elements on which it should operate. This means that you can reuse the same animation for different elements.
 
-## Reusing animation functions
 
-An animation function keeps all of the animation information, except for the elements on which it should operate. This means that you can use the same animation for different elements:
+## Animation functions as DOM event handlers
+
+Animation functions can also get the element to work on from the `this` value. This is what causing the animations below to run (the event handler is being called with `this` pointing at the DOM element on which the event was fired):
 
 	var hoverIn  = animini('background-color:#fff; color:#00f', 300, 'background-color:#00f; color:#fff');
 	var hoverOut = animini('background-color:#00f; color:#fff', 300, 'background-color:#fff; color:#00f');
 	document.getElementById('mySpan').onmouseover = hoverIn;
 	document.getElementById('mySpan').onmouseout  = hoverOut;
-
-Notice that animation functions can also get the element to work on from the `this` value. This is what causing the animations above to run (the event handler is being called with `this` pointing at the DOM element on which the event was fired).
 
 
 ## Animating several style properties in parallel

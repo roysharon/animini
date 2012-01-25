@@ -82,17 +82,17 @@ animation('myFirstElement');                  // now the animation has enough ar
 animation('mySecondElement');                 // run the same animation on element with ID 'mySecondElement'
 </code></pre>
 
-<h2>Reusing animation functions</h2>
+<p>Notice the last line above: An animation function keeps all of the animation information, except for the elements on which it should operate. This means that you can reuse the same animation for different elements.</p>
 
-<p>An animation function keeps all of the animation information, except for the elements on which it should operate. This means that you can use the same animation for different elements:</p>
+<h2>Animation functions as DOM event handlers</h2>
+
+<p>Animation functions can also get the element to work on from the <code>this</code> value. This is what causing the animations below to run (the event handler is being called with <code>this</code> pointing at the DOM element on which the event was fired):</p>
 
 <pre><code>var hoverIn  = animini('background-color:#fff; color:#00f', 300, 'background-color:#00f; color:#fff');
 var hoverOut = animini('background-color:#00f; color:#fff', 300, 'background-color:#fff; color:#00f');
 document.getElementById('mySpan').onmouseover = hoverIn;
 document.getElementById('mySpan').onmouseout  = hoverOut;
 </code></pre>
-
-<p>Notice that animation functions can also get the element to work on from the <code>this</code> value. This is what causing the animations above to run (the event handler is being called with <code>this</code> pointing at the DOM element on which the event was fired).</p>
 
 <h2>Animating several style properties in parallel</h2>
 

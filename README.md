@@ -28,11 +28,11 @@ Arguments can be supplied in any order, and each argument can be supplied more t
 
 * *style* - a CSS style (e.g., `'top: 10ex; color: #FD0; opacity: 0.75'`). The animation will transition from the first style specified to the second, and then to the third, and so forth. There must be at least two style arguments in an animation. 
 
-* *duration* - the duration of a transition. This is an optional argument between a couple of style arguments (e.g., '`"top:30px", 500, "top:70px"` will cause the transition to take 500 milliseconds). The default transition duration is 1000 milliseconds.  
+* *duration* - the duration of a transition. This is an optional argument between a couple of style arguments (e.g., `"top:30px", 500, "top:70px"` will cause the transition to take 500 milliseconds). The default transition duration is 1000 milliseconds.  
 
-* *easingFunc* - the easing function that should be used in a transition. This is an optional argument between a couple of style arguments (e.g., '`"top:30px", animini.bounce.o, "top:70px"` will cause the transition to use the bounce-out easing function). Defaults to `animini.sine.io`. See the list of animini's [easing functions](#easing) below.  
+* *easingFunc* - the easing function that should be used in a transition. This is an optional argument between a couple of style arguments (e.g., `"top:30px", animini.bounce.o, "top:70px"` will cause the transition to use the bounce-out easing function). Defaults to `animini.sine.io`. See the list of animini's [easing functions](#easing) below.  
 
-* *callback* - an optional callback function that should be invoked when the animation ends. The callback's arguments are the elements on which the animation occured (this enables infinite loop animations by giving the animation itself as a callback; see example below).
+* *callback* - an optional callback function that should be invoked when the animation ends. The callback's arguments are the elements on which the animation occured (this enables infinite loop animations by giving the animation itself as a callback; see [example](#callbacks) below).
 
 The `animini()` factory method returns an animation function. If the animation has enough parameters to run, then it will automatically start. Otherwise, it will wait for further arguments to be supplied. For example:
 
@@ -58,15 +58,17 @@ To animate several properties in parallel, simply specify them:
 To add pauses inside an animation, add a transition without changing the style:
 
 	// create an animation that fades in for a quarter of a second, waits half a second, and then fades out again
-	var transparent = 'opacity:0.0';
-	var opaque = 'opacity:1.0';
-	var fadeInOut = animini(transparent, 250, opaque, 500, opaque, 250, transparent);
+	var transparent = 'opacity: 0.0';
+	var opaque      = 'opacity: 1.0';
+	var fadeInOut   = animini(transparent, 250, opaque, 500, opaque, 250, transparent);
 	
 	// activate the animation
 	fadeInOut('myElement');
 
 
+<a name="callbacks">
 ## Using callbacks
+</a>
 
 To have a function be called upon the animation end, simply add it as an argument:
 

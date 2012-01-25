@@ -74,6 +74,13 @@ To animate several properties in parallel, simply specify them:
 	        'color:#ff0020; margin-top: 0px; text-shadow:20px 20px 40px #888;'
 	       );
 
+From animini's point of view, this animation includes 9 animated properties: color's red component, color's blue component, margin top, text shadow's x offset, y offset, blur size, and three shadow color components. Animini simply creates an animation with nine parallel stages.
+
+Animini parses the supplied styles, so it really does not care about the order in which style properties are defined. However, it does care about the order of values in shorthand styles:
+
+	animini('top:8px; border:1px solid #000', 'border:8px solid #fff; top:0px'); // RIGHT: order of properties is unimportant
+	animini('top:8px; border:1px solid #000', 'border:#fff solid 8px; top:0px'); // WRONG: order of values inside each property is!
+	
 
 ## Adding pauses to an animation
 

@@ -1,17 +1,18 @@
 # Animini Features
 
 * Very lightweight and small - less than 5K minified.
-* Automatically create a tween animation between several styles.
-* Easing functions (a.k.a. interpoletors): Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce.   
-  Each easing function has its own versions of easing-in, easing-out, and easing-in-out.
+* Create tween animations by specifying CSS styles textually.
+* Easing functions (a.k.a. interpoletors): Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce. Each easing function has its own versions of easing-in, easing-out, and easing-in-out.
 * Cross browser compatibility.
 * No external dependencies on other libraries.
 
 
 # Usage Example
-
+	  
+	  
 	animini('myDiv', 'top:100px; color:#008C00', 1000, 'top:200px; color:#ff0000');
-
+	  
+	  
 
 # Documentation
 
@@ -44,9 +45,12 @@ The `animini()` factory method returns an animation function. If the animation h
 
 ## Animating several style properties in parallel
 
-To animate several properties in parallel, simply specify them together:
+To animate several properties in parallel, simply specify them:
 
-	animini('myDiv', 'color:#ff0020; margin:20px 20px 0px 0px', 'margin:0px 0px 20px 20px; color:#880088');
+	animini('myDiv',
+	        'color:#880088; margin-top:20px; text-shadow: 0px  0px  0px #000;',
+	        'color:#ff0020; margin-top: 0px; text-shadow:20px 20px 40px #888;'
+	       );
 
 
 ## Adding pauses to an animation
@@ -54,8 +58,8 @@ To animate several properties in parallel, simply specify them together:
 To add pauses inside an animation, add a transition without changing the style:
 
 	// create an animation that fades in for a quarter of a second, waits half a second, and then fades out again
-	var transparent = 'opacity:0';
-	var opaque = 'opacity:1';
+	var transparent = 'opacity:0.0';
+	var opaque = 'opacity:1.0';
 	var fadeInOut = animini(transparent, 250, opaque, 500, opaque, 250, transparent);
 	
 	// activate the animation

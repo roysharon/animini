@@ -36,9 +36,8 @@
 
 <ul>
 <li>Very lightweight and small - less than 5K minified.</li>
-<li>Automatically create a tween animation between several styles.</li>
-<li>Easing functions (a.k.a. interpoletors): Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce. <br />
-Each easing function has its own versions of easing-in, easing-out, and easing-in-out.</li>
+<li>Create tween animations by specifying CSS styles textually.</li>
+<li>Easing functions (a.k.a. interpoletors): Linear, Quadratic, Cubic, Quartic, Sine, Exponential, Circular, Elastic, Expecting, and Bounce. Each easing function has its own versions of easing-in, easing-out, and easing-in-out.</li>
 <li>Cross browser compatibility.</li>
 <li>No external dependencies on other libraries.</li>
 </ul>
@@ -76,9 +75,12 @@ animation('mySecondElement');                 // run the same animation on eleme
 
 <h2>Animating several style properties in parallel</h2>
 
-<p>To animate several properties in parallel, simply specify them together:</p>
+<p>To animate several properties in parallel, simply specify them:</p>
 
-<pre><code>animini('myDiv', 'color:#ff0020; margin:20px 20px 0px 0px', 'margin:0px 0px 20px 20px; color:#880088');
+<pre><code>animini('myDiv',
+        'color:#880088; margin-top:20px; text-shadow: 0px  0px  0px #000;',
+        'color:#ff0020; margin-top: 0px; text-shadow:20px 20px 40px #888;'
+       );
 </code></pre>
 
 <h2>Adding pauses to an animation</h2>
@@ -86,8 +88,8 @@ animation('mySecondElement');                 // run the same animation on eleme
 <p>To add pauses inside an animation, add a transition without changing the style:</p>
 
 <pre><code>// create an animation that fades in for a quarter of a second, waits half a second, and then fades out again
-var transparent = 'opacity:0';
-var opaque = 'opacity:1';
+var transparent = 'opacity:0.0';
+var opaque = 'opacity:1.0';
 var fadeInOut = animini(transparent, 250, opaque, 500, opaque, 250, transparent);
 
 // activate the animation

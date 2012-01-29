@@ -13,6 +13,12 @@
 	animini('myDiv', 'top:100px; color:#008C00', 1000, 'top:200px; color:#ff0000');
 	  
 	  
+# Demos
+
+* [Easing functions](http://roysharon.com/animini/demo-easing.html) - demo of animini's built-in easing functions.
+* [Tinker, Tailor, Soldier, Sailor](http://roysharon.com/animini/demo-tinker.html) - demo of a `text-shadow` animation.
+* [Clock](http://roysharon.com/animini/demo-clock.html) - demo of animating the `transform` style property (requires a CSS3 capable browser).
+
 
 # Documentation
 
@@ -166,4 +172,4 @@ Note that you must register an easing function before you can use it in animatio
 
 
 # License
-Using or modifying this project is subject to the very permissive [MIT License](http://creativecommons.org/licenses/MIT/).
+The friendly [MIT License](http://creativecommons.org/licenses/MIT/).

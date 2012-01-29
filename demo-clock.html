@@ -2,64 +2,78 @@
 	<head>
 		<title>Animini Clock Demo</title>
 		<script src="animini.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="demo.css" />
+		<script>
+function showAnimationSource() {
+	var o = document.body.appendChild(document.createElement('pre')).appendChild(document.createElement('code'));
+	o.innerText = (Array.prototype.join.call(arguments, ';\n') + ';').replace(/(\s*);(\s*)(?=;)/g, '$1$2');
+}
+		</script>
 	</head>
 	<body>
 
-		<h1>Animini Clock Demo</h1>
-		
-		<div id="myDiv" style="position:absolute; left:80px; top:80px; width:150px; height:150px;">
-			<script>
+		<h1><script>document.write(document.title)</script></h1>
+
+		<script>
 
 // CSS3 transform (2D) is still experimental, although all modern browsers support it:
 // IE 9, FF 3.5, Chrome 4.0, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, Opera 10.5, Opera Mobile 11.0
 // However, to use it, one needs to add a browser-specific prefix. For example: -webkit-transform.
 // The following function determines the correct transform style property name:
-function getTransform(optionalValue) {
-	var r = getTransform.cachedResult;
-	if (!r) {
-		var m = /\bmsie.(\d+\.\d+)/i.exec(navigator.userAgent);
-		if (!m || parseFloat(m[1]) >= 9) {
-			var v = 'transform';
-			if (window.getComputedStyle) {
-				var o = document.body;
-				if (o) {
-					var s = window.getComputedStyle(o, null);
-					if (s.transform == undefined) {
-						if (s.WebkitTransform != undefined) v = '-webkit-' + v;
-						else if (s.MozTransform != undefined) v = '-moz-' + v;
-						else if (s.OTransform != undefined) v = '-o-' + v;
-						else if (s.MsTransform != undefined) v = '-ms-' + v;
-						else v = undefined;
-					}
+function getTransform() {
+	var m = /\bmsie.(\d+\.\d+)/i.exec(navigator.userAgent);
+	if (!m || parseFloat(m[1]) >= 9) {
+		var v = 'transform';
+		if (window.getComputedStyle) {
+			var o = document.body;
+			if (o) {
+				var s = window.getComputedStyle(o, null);
+				if (s.transform == undefined) {
+					if (s.WebkitTransform != undefined) v = '-webkit-' + v;
+					else if (s.MozTransform != undefined) v = '-moz-' + v;
+					else if (s.OTransform != undefined) v = '-o-' + v;
+					else if (s.MsTransform != undefined) v = '-ms-' + v;
+					else v = undefined;
 				}
 			}
 		}
-		getTransform.cachedResult = r = {v:v};
 	}
-	return r.v && (r.v + (optionalValue ? ':' + optionalValue : ''));
+	return v;
 }
 
-if (getTransform()) {
+var transform = getTransform();
 
-	// create the clock's numbers
+if (transform) {
+
+	// create the clock
 	function createNumber(num) {
 		var d = Math.round((num % 12) * 30);
-		var t = getTransform('rotate(' + d + 'deg)');
+		var t = transform + ':rotate(' + d + 'deg)';
 		document.write('<div style="position:absolute; width:150px; height:150px; text-align:center;' + t + '">' + num + '</div>');
 	}
+	document.write('<div id="myDiv" style="margin:50px; width:150px; height:150px;">');
 	for (var i = 1; i <= 12; ++i) createNumber(i);
+	document.write('</div>');
 
 	// build the animation
-	var s1 = 'color:#ffce00;' + getTransform('scaleY(1.2) skew(-20deg, -20deg) rotate(  0deg)');
-	var s2 = 'color:#a28400;' + getTransform('scaleY(0.7) skew( 40deg, -20deg) rotate(360deg)');
-	var e = animini.cubic.inout;
+	var s1 = 'color:#ffce00; ' + transform + ':scaleY(1.2) skew(-20deg, -20deg) rotate(  0deg)';
+	var s2 = 'color:#a28400; ' + transform + ':scaleY(0.7) skew( 40deg, -20deg) rotate(360deg)';
+	var e = animini.cubic.io;
 	var animation = animini(s1, 3000, e, s2, 250, s2, 3000, e, s1, 250);
-	
+
+	// show the animation's source
+	showAnimationSource(
+		'var s1 = "' + s1 + '"',
+		'var s2 = "' + s2 + '"',
+		'var e = animini.' + e._easing,
+		'var animation = animini(s1, 3000, e, s2, 250, s2, 3000, e, s1, 250)',
+		'animation("myDiv", animation)'
+	);
+
 	// run the animation
 	animation('myDiv', animation);
 
 } else {
-	document.getElementById('myDiv').style.cssText = '';
 	document.write('<h3>It seems your browser does not support the new CSS3 transform style. Sorry.</h3>');
 	document.write('Please try this demo again with one of the following browsers:<ul>');
 	var a = 'Chrome 4.0, Firefox 3.5, Safari 3.1, iOS Safari 3.2, Android Browser 2.1, IE 9, Opera 10.5, Opera Mobile 11.0'.split(/, /g);
@@ -67,9 +81,7 @@ if (getTransform()) {
 	document.write('</ul>');
 }
 
-			</script>
-		
-		</div>
+		</script>
 
 	</body>
 </html>

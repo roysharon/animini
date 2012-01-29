@@ -1,6 +1,6 @@
-// animini.js - Animation Micro Javascript Library
-// by Roy Sharon <roy@roysharon.com>, 2010-09-27
-// Using or modifying this project is subject to the very permissive MIT License (http://creativecommons.org/licenses/MIT/)
+// animini.js - Tween Animation Micro Javascript Library
+// by Roy Sharon <roy@roysharon.com>, 2012-01-29
+// with a friendly MIT License (http://creativecommons.org/licenses/MIT/)
 
 (function () {
 
@@ -106,7 +106,10 @@
 			         : stage < count ? max(0, startTime + stages[stage].t - new Date())
 			         :                 endTime - new Date();
 			if (next >= 0) setTimeout(step, next);
-			else if (callbacks) for (i = 0; i < callbacks.length; ++i) dispatch(callbacks[i], elements);
+			else if (callbacks) for (i = 0; i < callbacks.length; ++i) {
+				var c = callbacks[i];
+				dispatch(c, elements.concat(c._animini ? callbacks : []));
+			}
 		}
 		
 		step();
@@ -296,9 +299,9 @@
 	//----- Animation Factory -----------------------------------------------------
 	
 	function create() {
-		var args = [], callbacks = [], millisec;
+		var args = [], millisec;
 		var animation = function () {
-			var elements = [];
+			var elements = [], callbacks = [];
 			
 			function parseAnimation(varArg) {
 				var notstart;
@@ -348,6 +351,7 @@
 			animation['stages'] = stages;
 			return animation;
 		};
+		animation._animini = 1;
 		animation.apply(this, arguments);
 		return animation;
 	}

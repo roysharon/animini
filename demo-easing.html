@@ -2,13 +2,24 @@
 	<head>
 		<title>Animini Easing Demo</title>
 		<script src="animini.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="demo.css" />
+		<script>
+function showAnimationSource() {
+	var o = document.getElementById('code');
+	if (!o) {
+		o = document.body.appendChild(document.createElement('pre')).appendChild(document.createElement('code'));
+		o.id = 'code';
+	}
+	o.innerText = Array.prototype.join.call(arguments, '\n');
+}
+		</script>
 	</head>
 	<body>
 
-		<h1>Animini Easing Demo</h1>
+		<h1><script>document.write(document.title)</script></h1>
 		
 		<div>
-			<b>Choose easing function:</b><br>
+			<b>Choose an easing function:</b><br>
 			<table>
 				<tr>
 					<script>
@@ -31,20 +42,32 @@ for (var i in animini) if (i != 'easing') {
 			</table>
 		</div>
 	
-		<div id="myDiv" style="font-size:2em;">
-			Animini is the smallest tweening animation javascript library!
+		<div style="height:130px">
+			<div id="myDiv" style="position:relative;font-size:2em;">
+				Animini is the smallest tweening animation javascript library!
+			</div>
 		</div>
 
 	</body>
 	<script>
 
 var e = animini.bounce.o;
-var s1 = 'margin-top:0px;   color:#00aa00;';
-var s2 = 'margin-top:100px; color:#dd0000;';
+var s1 = 'top:0px;   color:#00aa00;';
+var s2 = 'top:100px; color:#dd0000;';
 
 function animate() {
 	// recreate animation each cycle, so we can change the easing function
-	animini('myDiv', s1, e, 1000, s2, e, 1000, s1, animate);
+	var animation = animini(s1, e, 1000, s2, e, 1000, s1);
+	animation('myDiv', animate);
+	
+	// show the animation's source
+	showAnimationSource(
+		'var s1 = "' + s1 + '"',
+		'var s2 = "' + s2 + '"',
+		'var e = animini.' + e._easing + ';',
+		'var animation = animini("myDiv", s1, e, 1000, s2, e, 1000, s1);',
+		'animation(animation); // supply the animation itself as a callback, to create an inifinte loop'
+	);
 }
 
 animate();

@@ -1,0 +1,78 @@
+<html>
+	<head>
+		<title>Animini Tinker Demo</title>
+		<script src="animini.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="demo.css" />
+		<script>
+function showAnimationSource() {
+	var o = document.body.appendChild(document.createElement('pre')).appendChild(document.createElement('code'));
+	o.innerText = (Array.prototype.join.call(arguments, ';\n') + ';').replace(/\n;/g, '\n');
+}
+		</script>
+		<style>
+			#container1, #container2 {
+				position:relative;
+				height:0px;
+				width:12ex;
+				text-align:center;
+				font-size:2em;
+				color:purple;
+			}
+		</style>
+	</head>
+	<body>
+
+		<h1><span><script>document.write(document.title)</script></span></h1>
+	
+		<div style="height:3em">
+			<div id="container1"></div>
+			<div id="container2"></div>
+		</div>
+		
+		<script>
+
+var wc = document.getElementById('container1').offsetWidth;
+var wh = document.getElementsByTagName('h1')[0].firstChild.offsetWidth;
+var entering = 'top: 0px; left: '+wh+'px; opacity:0.0; text-shadow:20px 20px 40px #888;';
+var current  = 'top:10px; left:  '+Math.round((wh-wc)/2)+'px; opacity:1.0; text-shadow: 0px  0px  0px #000;';
+var leaving  = 'top: 0px; left:'+(-wc)+'px; opacity:0.0; text-shadow:20px 20px 40px #888;';
+var e        = animini.expo.o;
+var animIn   = animini(entering, e, current, 500);
+var animOut  = animini(current,  e, leaving, 500);
+
+var list = 'Tinker,Tailor,Soldier,Sailor,Rich man,Poor man,Beggar man,Thief'.split(',');
+var i = 0;
+
+function enter(element) {
+	element.innerHTML = list[i++ % list.length];
+	animIn(element, leave);
+}
+
+function leave(element) {
+	animOut(element, enter);
+}
+	
+// run the animation
+enter(document.getElementById('container1'));
+leave(document.getElementById('container2'));
+
+// show the animation's source
+showAnimationSource(
+	'var entering = "' + entering + '"',
+	'var current  = "' + current + '"',
+	'var leaving  = "' + leaving + '"',
+	'var e        = animini.' + e._easing,
+	'var animIn   = animini(entering, e, current, 500)',
+	'var animOut  = animini(current,  e, leaving, 500)',
+	'',
+	'function enter(element) { animIn(element, leave);  }',
+	'function leave(element) { animOut(element, enter); }',
+	'',
+	'enter(document.getElementById("container1"))',
+	'leave(document.getElementById("container2"))'
+);
+
+		</script>
+
+	</body>
+</html>
